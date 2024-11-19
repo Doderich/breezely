@@ -1,5 +1,6 @@
 volumes/.mytb-data/*
 volumes/.mytb-logs/*
+volumes/.postgres/*
 
 venv
 *.log

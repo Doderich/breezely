@@ -1,18 +1,18 @@
 version: '3.0'
 services:
-  mytb:
-    restart: always
-    image: "thingsboard/tb-postgres"
-    ports:
-      - "8080:9090"
-      - "1883:1883"
-      - "7070:7070"
-      - "5683-5688:5683-5688/udp"
-    environment:
-      TB_QUEUE_TYPE: in-memory
-    volumes:
-      - ./volumes/.mytb-data:/data
-      - ./volumes/.mytb-logs:/var/log/thingsboard
+  # mytb:
+  #   restart: always
+  #   image: "thingsboard/tb-postgres"
+  #   ports:
+  #     - "8080:9090"
+  #     - "1883:1883"
+  #     - "7070:7070"
+  #     - "5683-5688:5683-5688/udp"
+  #   environment:
+  #     TB_QUEUE_TYPE: in-memory
+  #   volumes:
+  #     - ./volumes/.mytb-data:/data
+  #     - ./volumes/.mytb-logs:/var/log/thingsboard
  
   zitadel:
     restart: 'always'
@@ -31,6 +31,11 @@ services:
     restart: 'always'
     image: postgres:16-alpine
     env_file: '.env.docker'
+    ports: 
+      - "5432:5432"
+    volumes:
+       - ./volumes/.pg-init-scripts/db_init.sh:/docker-entrypoint-initdb.d/db_init.sh 
+       - ./volumes/.postgres:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready", "-d", "zitadel", "-U", "postgres"]
       interval: '10s'
