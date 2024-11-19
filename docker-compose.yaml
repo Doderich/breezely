@@ -26,6 +26,19 @@ services:
         condition: 'service_healthy'
     ports:
       - '8081:8080'
+
+  # brezzely-backend:
+  #   build:
+  #     context: ./services/backend
+  #     dockerfile: Dockerfile
+  #   command: gunicorn breezelybackend.wsgi:application --bind 0.0.0.0:8000
+  #   env_file: '.env.docker'
+  #   environment:
+  #     SQL_HOST: db
+  #   ports:
+  #     - 8000:8000
+  #   depends_on:
+  #     - db
   
   db:
     restart: 'always'
