@@ -1,2 +1,10 @@
 volumes/.mytb-data/*
 volumes/.mytb-logs/*
+
+venv
+*.log
+*.pot
+*.pyc
+__pycache__
+db.sqlite3
+media
