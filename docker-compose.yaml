@@ -1,44 +1,31 @@
 version: '3.0'
 services:
-  # mytb:
-  #   restart: always
-  #   image: "thingsboard/tb-postgres"
-  #   ports:
-  #     - "8080:9090"
-  #     - "1883:1883"
-  #     - "7070:7070"
-  #     - "5683-5688:5683-5688/udp"
-  #   environment:
-  #     TB_QUEUE_TYPE: in-memory
-  #   volumes:
-  #     - ./volumes/.mytb-data:/data
-  #     - ./volumes/.mytb-logs:/var/log/thingsboard
+  mytb:
+    restart: always
+    image: "thingsboard/tb-postgres"
+    ports:
+      - "8080:9090"
+      - "1883:1883"
+      - "7070:7070"
+      - "5683-5688:5683-5688/udp"
+    environment:
+      TB_QUEUE_TYPE: in-memory
+    volumes:
+      - ./volumes/.mytb-data:/data
+      - ./volumes/.mytb-logs:/var/log/thingsboard
  
-  zitadel:
-    restart: 'always'
-    image: 'ghcr.io/zitadel/zitadel:latest'
-    command: 'start-from-init --masterkey "MasterkeyNeedsToHave32Characters" --tlsMode disabled'
+  brezzely-backend:
+    build:
+      context: ./services/backend
+      dockerfile: Dockerfile
+    command: gunicorn breezelybackend.wsgi:application --bind 0.0.0.0:8000
     env_file: '.env.docker'
     environment:
-      ZITADEL_DATABASE_POSTGRES_HOST: db
-    depends_on:
-      db:
-        condition: 'service_healthy'
+      SQL_HOST: db
     ports:
-      - '8081:8080'
-
-  # brezzely-backend:
-  #   build:
-  #     context: ./services/backend
-  #     dockerfile: Dockerfile
-  #   command: gunicorn breezelybackend.wsgi:application --bind 0.0.0.0:8000
-  #   env_file: '.env.docker'
-  #   environment:
-  #     SQL_HOST: db
-  #   ports:
-  #     - 8000:8000
-  #   depends_on:
-  #     - db
+      - 8000:8000
+    depends_on:
+      - db
   
   db:
     restart: 'always'
