@@ -1,12 +1,16 @@
 import { Button, Text, View, StyleSheet } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { useAuth } from '@/hooks/useAuth';
-
-
+import { usePushnotification } from '@/hooks/usePushnotifications';
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function App() {
+
+  const {expoPushToken, notification} = usePushnotification()
+
+
+  const data = JSON.stringify(notification, undefined, 2)
 
   const {
     request,user, setCodeUsed, promptAsync, logout, setAuthError, authError
@@ -49,6 +53,9 @@ export default function App() {
       <Text style={[styles.text]}>{redirectUri}</Text> */}
       <Text style={[styles.heading]}>Token Data:</Text>
       {user ? <Text style={[styles.text]}>{JSON.stringify(user.decoded)}</Text> : null}
+
+        <Text>Token: {expoPushToken?.data}</Text>
+        <Text>{data}</Text>
 
     </View>
   )

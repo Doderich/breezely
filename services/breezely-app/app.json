@@ -7,14 +7,13 @@
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
-    "schema": "breezely",
+    "scheme": "com.breezely.breezely",
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "versionCode": 1,
-      "schema": "breezely",
-      "package": "com.breezely.breezely",
+      "googleServicesFile": "./android/app/google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -40,6 +39,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "f02a5906-65ad-40e3-9718-cfcbf5f38a87"
+      }
     }
   }
 }
