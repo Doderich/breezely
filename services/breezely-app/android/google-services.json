@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "851209721230",
+    "project_id": "breezely-dev",
+    "storage_bucket": "breezely-dev.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:851209721230:android:9b78bf179e3ec9b7a9c0df",
+        "android_client_info": {
+          "package_name": "com.breezely.breezely"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAP2HmGVoi-c458eRNistQjhk603m8b7mU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
