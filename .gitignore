@@ -4,3 +4,4 @@ volumes/.postgres/*
 
 venv
 .env
+zitadel_keys

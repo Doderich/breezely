@@ -17,6 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from .views import ThingboardAPIView, ThingsBoardClientView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/http-api', ThingboardAPIView.as_view()),
+    path('api/rest-client', ThingsBoardClientView.as_view()),
+    
 ]
