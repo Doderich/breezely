@@ -3,9 +3,17 @@ import * as WebBrowser from 'expo-web-browser';
 import { useAuth } from '@/hooks/useAuth';
 import { usePushnotification } from '@/hooks/usePushnotifications';
 
+
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { useReactQueryDevTools } from '@dev-plugins/react-query';
+import { ReactQueryExample } from '@/componets/reactquery-example';
+
+
 WebBrowser.maybeCompleteAuthSession();
 
 export default function App() {
+  const queryClient = new QueryClient();
+  useReactQueryDevTools(queryClient);
 
   const {expoPushToken, notification} = usePushnotification()
 
@@ -17,6 +25,7 @@ export default function App() {
   } = useAuth()
 
   return (
+    <QueryClientProvider client={queryClient}>
     <View style={styles.container}>
       <View style={styles.row}>
 
@@ -56,8 +65,10 @@ export default function App() {
 
         <Text>Token: {expoPushToken?.data}</Text>
         <Text>{data}</Text>
+        <ReactQueryExample />
 
     </View>
+    </QueryClientProvider>
   )
 }
 
