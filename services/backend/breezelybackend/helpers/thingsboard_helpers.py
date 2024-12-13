@@ -1,6 +1,7 @@
 import requests
 from .. import settings
 from tb_rest_client.rest_client_ce import RestClientCE
+from models import User
 
 
 class ThingsboardAPIHelper():
@@ -35,8 +36,13 @@ class ThingsboardAPIHelper():
          
          
 class ThingsBoardClient():
-    def __init__(self):
+    def __init__(self, user: User):
         self.client = RestClientCE(base_url=settings.THINGSBOARD_URL)
+
+        email = user.email
+        password = user.password
+
+        ## inject user email and password from backend user instance
         self.client.login(settings.THINGSBOARD_USER_EMAIL, settings.THINGSBOARD_USER_PASSWORD)
 
     def close(self):

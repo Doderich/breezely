@@ -1,19 +1,23 @@
 from django.http import JsonResponse
 import json
+import cryptography.fernet as fernet
+from rest_framework.generics import GenericAPIView
+
+from services.backend.breezelybackend.serializers import UserCreationSerializer
+
 
 from .custom_resource_protector import CustomResourceProtector
 from . import validator
 from .helpers import thingsboard_helpers
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.views import APIView 
 
 require_auth = CustomResourceProtector()
 require_auth.register_token_validator(validator.ZitadelIntrospectTokenValidator())
 
 
 
-class ThingboardAPIView(APIView):
+class ThingboardAPIView(GenericAPIView):
 
     # @require_auth(None)
     # def private(request):
@@ -38,8 +42,8 @@ class ThingboardAPIView(APIView):
         return Response(data=current_user, status=status.HTTP_200_OK)
         
         
-class ThingsBoardClientView(APIView):
-    require_auth(scopes=None)
+class ThingsBoardClientView(GenericAPIView):
+    @require_auth(scopes=None)
     def get(self, request):
         
         client = thingsboard_helpers.ThingsBoardClient().client
@@ -47,3 +51,22 @@ class ThingsBoardClientView(APIView):
         return Response(data=res.to_dict(),
                         status=status.HTTP_200_OK)
         
+
+class UserCreationView(GenericAPIView):
+    @require_auth(scopes=None)
+    def post(self, request):
+        data = request.data
+        user = None
+
+        user_serializer = UserCreationSerializer(data=data)
+        if user_serializer.is_valid(raise_exception=True):
+            user = user_serializer.save()
+        
+        if not user:
+            return Response(data={"details": "User creation failed due to invalid data"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # todo: 
+        # Take email from login as thingsboard email, create a randomly generated pw and encrypt it
+        # Create User in thingsboard as customer, retrieve thingsboard id
+        # save newly created data in user instance
