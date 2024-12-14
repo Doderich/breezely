@@ -3,12 +3,12 @@ import json
 import cryptography.fernet as fernet
 from rest_framework.generics import GenericAPIView
 
-from services.backend.breezelybackend.serializers import UserCreationSerializer
+from ..serializers import UserCreationSerializer
 
 
-from .custom_resource_protector import CustomResourceProtector
-from . import validator
-from .helpers import thingsboard_helpers
+from ..custom_resource_protector import CustomResourceProtector
+from .. import validator
+from ..helpers import thingsboard_helpers
 from rest_framework.response import Response
 from rest_framework import status
 

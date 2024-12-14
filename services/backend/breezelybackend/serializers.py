@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from services.backend.breezelybackend.models import User
+from .api.models import User
+
 
 
 class UserCreationSerializer(serializers.ModelSerializer):

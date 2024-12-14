@@ -15,13 +15,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-
-from .views import ThingboardAPIView, ThingsBoardClientView
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/http-api', ThingboardAPIView.as_view()),
-    path('api/rest-client', ThingsBoardClientView.as_view()),
+    path('api/', include('breezelybackend.api.urls')),
+    path('hooks/', include('breezelybackend.hooks.urls')),
+    
+    
     
 ]
