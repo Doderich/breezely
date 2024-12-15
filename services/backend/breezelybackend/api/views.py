@@ -70,3 +70,23 @@ class UserCreationView(GenericAPIView):
         # Take email from login as thingsboard email, create a randomly generated pw and encrypt it
         # Create User in thingsboard as customer, retrieve thingsboard id
         # save newly created data in user instance
+
+
+class UserInfoView(GenericAPIView):
+    @require_auth(scopes=None)
+    def get(self, request):
+        token = request.oauth_token
+        print(token)
+        return JsonResponse(dict(message={
+            "userName": token.get('username', None),
+            "fullName": token.get('given_name', None) + " " + token.get("family_name", None),
+            "picture": token.get("picture", None),
+            "id": token.get("sub", None)
+        }))
+
+class PushTokenView(GenericAPIView):
+    @require_auth(scopes=None)
+    def post(self, request):
+        print(request.data)
+        return Response(data=request.data,
+                            status=status.HTTP_200_OK)
