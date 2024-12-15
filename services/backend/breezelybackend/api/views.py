@@ -3,7 +3,7 @@ import json
 import cryptography.fernet as fernet
 from rest_framework.generics import GenericAPIView
 
-from ..serializers import UserCreationSerializer
+from ..serializers import UserSerializer
 
 
 from ..custom_resource_protector import CustomResourceProtector

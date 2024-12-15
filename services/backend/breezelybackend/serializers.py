@@ -4,7 +4,8 @@ from .api.models import User
 
 
 
-class UserCreationSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("name", "email", "zitadel_id")
+        fields = ("name", "email", "thingsboard_id", "thingsboard_password", "zitadel_id", "expo_push_token")
+        
