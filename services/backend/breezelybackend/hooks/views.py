@@ -18,3 +18,13 @@ class ZitadelWebhookView(GenericAPIView):
         print("data: ", request.data)
         
         return Response(status=status.HTTP_200_OK)
+    
+    
+class ThingsboardWebhook(GenericAPIView):
+    def post(self, request):
+        print("thingsboard webhook worked")
+        print("")
+        print("data:", request.data)
+        
+        return Response(status=status.HTTP_200_OK)
+        

@@ -1,12 +1,32 @@
 from django.db import models
 
+DEVICE_TYPES = [
+    ("Window", "window"),
+    ("Door", "door")
+]
 
-class User(models.Model):
+class BaseClass(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
+
+    class Meta:
+            abstract = True
+
+class User(BaseClass):
     name = models.CharField(max_length=64)
+    email = models.EmailField(null=True)
+    thingsboard_id = models.CharField(max_length=128) # check thingsboard api for what type this is
+    thingsboard_password = models.CharField(max_length=128, null=True)
+    zitadel_id = models.CharField(max_length=128) # check zitadel api for what type this is
+    expo_push_token = models.CharField(max_length=128, null=True)
+    
+class Room(BaseClass):
+    name = models.CharField(max_length=64)
+    user = models.ForeignKey(User, related_name="rooms", on_delete=models.CASCADE)
 
-    email = models.EmailField()
-    thingsboard_password = models.CharField()
-    thingsboard_id = models.BigIntegerField() # check thingsboard api for what type this is
-    zitadel_id = models.BigIntegerField() # check zitadel api for what type this is
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+class Device(BaseClass):
+    device_id = models.CharField(max_length=128)
+    name = models.CharField(max_length=128)
+    type = models.CharField(choices=DEVICE_TYPES, max_length=7)
+    assigned_room = models.ForeignKey(Room, related_name="devices", on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(User, related_name="devices", on_delete=models.CASCADE)
