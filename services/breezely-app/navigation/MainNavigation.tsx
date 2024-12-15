@@ -13,10 +13,10 @@ import DeviceInfo from "@/app/deviceInfo";
 import Settings from "@/app/settings";
 import Favorites from "@/app/favorites";
 import EditDevice from "@/app/editDevice";
-import Rooms from "@/app/Rooms";
 import EditProfile from "@/app/editProfile";
 import EditProfileField from "@/app/editProfileField";
-import Room from "@/app/Room";
+import Rooms from "@/app/rooms";
+import Room from "@/app/room";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -32,7 +32,11 @@ export const NonAuthenticated = () => {
 const HomeStack = () => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name={StackRoutes.Home} component={Home} />
+      <Stack.Screen
+        name={StackRoutes.Home}
+        component={Home}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
@@ -40,7 +44,11 @@ const HomeStack = () => {
 const SettingsStack = () => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name={StackRoutes.Settings} component={Settings} />
+      <Stack.Screen
+        name={StackRoutes.Settings}
+        component={Settings}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
@@ -48,7 +56,11 @@ const SettingsStack = () => {
 const FavoritesStack = () => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name={StackRoutes.Favorites} component={Favorites} />
+      <Stack.Screen
+        name={StackRoutes.Favorites}
+        component={Favorites}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
