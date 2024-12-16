@@ -14,8 +14,6 @@ import { ReactQueryExample } from "@/componets/reactquery-example";
 WebBrowser.maybeCompleteAuthSession();
 
 export default function App() {
-  const queryClient = new QueryClient();
-  useReactQueryDevTools(queryClient);
 
   const { expoPushToken, notification } = usePushnotification();
 
@@ -32,7 +30,7 @@ export default function App() {
   } = useAuth();
 
   return (
-    <QueryClientProvider client={queryClient}>
+    
       <View style={styles.container}>
         <View style={styles.row}>
           <View>
@@ -71,7 +69,6 @@ export default function App() {
         <Text>{data}</Text>
         <ReactQueryExample />
       </View>
-    </QueryClientProvider>
   );
 }
 

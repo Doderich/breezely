@@ -14,6 +14,7 @@ import AddButton from "@/componets/addButton";
 import DeviceView from "@/componets/deviceView";
 
 import { Device, DeviceTypes } from "@/types/device";
+import { useUserInfo } from "@/hooks/queries/useUserInfo";
 
 const devices = [
   {
@@ -106,11 +107,12 @@ const rooms = [
 ];
 
 export default function Home({ navigation }: { navigation: any }) {
+  const {data: user, isLoading } = useUserInfo()
   return (
     <SafeAreaView style={style.container}>
       <View style={style.header}>
-        <FlowText flowText={"Good afternoon,"} type="text1" />
-        <FlowText flowText={"John Doe"} type="text2" />
+        <FlowText flowText={ "Good afternoon,"} type="text1" />
+        <FlowText flowText={isLoading ? "Loading ...": user?.fullName ?? ""} type="text2" />
       </View>
       <View style={style.filterTabs}>
         <FlatList
