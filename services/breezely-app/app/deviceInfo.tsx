@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { RouteProp } from "@react-navigation/native";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
 import InfoLabel from "@/componets/infoLabel";
 import DeviceInfoLabel from "@/componets/deviceInfoLabel";
 import Feather from "@expo/vector-icons/Feather";
@@ -17,6 +17,20 @@ export default function DeviceInfo({
 }) {
   const device = route.params?.device;
 
+  const deleteDevice = () =>
+    Alert.alert("Delete Device", "Are you sure you want to delete this device?", [
+      {
+        text: "Cancel",
+        onPress: () => console.log("Cancel Pressed"),
+      },
+      {
+        text: "Delete",
+        onPress: async () => {
+          console.log("Delete device");
+        },
+      },
+    ]);
+
   return (
     <View style={styles.container}>
       <View style={styles.deviceInfo}>
@@ -32,9 +46,7 @@ export default function DeviceInfo({
             <Feather name="edit" size={24} color="black" />
           </Pressable>
           <Pressable
-            onPress={() => {
-              console.log("delete");
-            }}
+            onPress={deleteDevice}
           >
             <Feather name="trash-2" size={24} color="red" />
           </Pressable>
