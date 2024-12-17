@@ -15,8 +15,8 @@ import Favorites from "@/app/favorites";
 import EditDevice from "@/app/editDevice";
 import EditProfile from "@/app/editProfile";
 import EditProfileField from "@/app/editProfileField";
-import Rooms from "@/app/Rooms";
-import Room from "@/app/Room";
+import Rooms from "@/app/rooms";
+import Room from "@/app/room";
 
 
 const Stack = createNativeStackNavigator();
@@ -97,7 +97,7 @@ const HomeTabs = () => {
       })}
     >
       <Tab.Screen name={TabRoutes.HomeStack} component={HomeStack} />
-      <Tab.Screen name={TabRoutes.FavoritesStack} component={FavoritesStack} />
+      {/* <Tab.Screen name={TabRoutes.FavoritesStack} component={FavoritesStack} /> */}
       <Tab.Screen name={TabRoutes.SettingsStack} component={SettingsStack} />
     </Tab.Navigator>
   );
@@ -111,14 +111,15 @@ export const Authenticated = () => {
         component={HomeTabs}
         options={{ headerShown: false }}
       />
-      <Stack.Screen name={StackRoutes.DeviceInfo} component={DeviceInfo} />
+      <Stack.Screen name={StackRoutes.DeviceInfo} component={DeviceInfo} options={{ headerBackTitle: "Home" }} />
       <Stack.Screen name={StackRoutes.EditDevice} component={EditDevice} />
-      <Stack.Screen name={StackRoutes.Rooms} component={Rooms} />
-      <Stack.Screen name={StackRoutes.Room} component={Room} />
-      <Stack.Screen name={StackRoutes.EditProfile} component={EditProfile} />
+      <Stack.Screen name={StackRoutes.Rooms} component={Rooms} options={{ headerBackTitle: "Settings" }}/>
+      <Stack.Screen name={StackRoutes.Room} component={Room} options={{ headerBackTitle: "Rooms" }}/>
+      <Stack.Screen name={StackRoutes.EditProfile} component={EditProfile} options={{ headerBackTitle: "Settings" }}/>
       <Stack.Screen
         name={StackRoutes.EditProfileField}
         component={EditProfileField}
+        options={{ headerBackTitle: "Edit Profile" }}
       />
     </Stack.Navigator>
   );

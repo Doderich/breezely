@@ -3,7 +3,7 @@ import { View, Text, StyleProp, TextStyle, StyleSheet } from "react-native";
 
 type Props = {
   flowText: string;
-  type: "text1" | "text2" | "text3" | "text4" | "text5" | "text6";
+  type: "text1" | "text2" | "text3" | "text4" | "text5" | "text6" | "text7";
   color?: string;
   textUnderline?: boolean;
   numberOfLines?: number;
@@ -32,6 +32,8 @@ const FlowText: React.FC<Props> = ({
         return style.text5;
       case "text6":
         return style.text6;
+      case "text7":
+        return style.text7;
       default:
         return style.text1;
     }
@@ -106,5 +108,12 @@ const style = StyleSheet.create({
     fontWeight: '500',
     lineHeight: 10,
     letterSpacing: -0.4,
+  },
+  text7: {
+    fontFamily: 'Poppins',
+    fontSize: 14,
+    fontStyle: 'normal',
+    fontWeight: '400',
+    lineHeight: 18.2,
   },
 });

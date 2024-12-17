@@ -1,10 +1,54 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useEffect } from "react";
+import { RouteProp } from "@react-navigation/native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
+import InfoLabel from "@/componets/infoLabel";
+import DeviceInfoLabel from "@/componets/deviceInfoLabel";
+import Feather from "@expo/vector-icons/Feather";
+import FlowText from "@/componets/flowText";
+import { StackRoutes } from "@/navigation/Routes";
+import { DeviceTypes } from "@/types/device";
 
-export default function DeviceInfo() {
+export default function DeviceInfo({
+  route,
+  navigation,
+}: {
+  route: RouteProp<any, any>;
+  navigation: any;
+}) {
+  const device = route.params?.device;
+
   return (
     <View style={styles.container}>
-      <Text>Device Info</Text>
+      <View style={styles.deviceInfo}>
+        <DeviceInfoLabel device={device} />
+        <View style={styles.deviceInfoActions}>
+          <Pressable
+            onPress={() => {
+              navigation.navigate(StackRoutes.EditDevice, {
+                device: device,
+              });
+            }}
+          >
+            <Feather name="edit" size={24} color="black" />
+          </Pressable>
+          <Pressable
+            onPress={() => {
+              console.log("delete");
+            }}
+          >
+            <Feather name="trash-2" size={24} color="red" />
+          </Pressable>
+        </View>
+      </View>
+      <FlowText flowText={"Info"} type="text3" styleProps={styles.infoText} />
+
+      <View style={styles.deviceInfoDetails}>
+        <InfoLabel info="Device ID" data={device.deviceId} />
+        <InfoLabel info="Device Name" data={device.name} />
+        <InfoLabel info="Device Type" data={DeviceTypes[device.deviceType]} />
+        <InfoLabel info="Room" data={device.roomId} />
+        <InfoLabel info="Created Date" data={device.createdAt} />
+      </View>
     </View>
   );
 }
@@ -12,7 +56,7 @@ export default function DeviceInfo() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#F9F9F9",
     alignItems: "stretch",
     justifyContent: "flex-start",
     width: "100%",
@@ -33,5 +77,24 @@ const styles = StyleSheet.create({
   },
   error: {
     color: "red",
+  },
+  deviceInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginRight: 24,
+  },
+  deviceInfoActions: {
+    flexDirection: "row",
+    columnGap: 12,
+  },
+  deviceInfoDetails: {
+    rowGap: 6,
+    marginHorizontal: 20,
+  },
+  infoText: {
+    marginHorizontal: 22,
+    marginTop: 20,
+    marginBottom: 8,
   },
 });

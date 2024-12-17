@@ -133,7 +133,11 @@ export default function Home({ navigation }: { navigation: any }) {
       </View>
       <View style={style.addDeviceContainer}>
         <FlowText flowText={"Devices"} type="text3" />
-        <AddButton onPress={() => {}} />
+        <AddButton onPress={() => {
+          navigation.navigate(StackRoutes.EditDevice, {
+            title: "Add Device",
+          });
+        }} />
       </View>
       {/* <View style={style.devicesContainer}> */}
         <FlatList
@@ -143,7 +147,12 @@ export default function Home({ navigation }: { navigation: any }) {
           contentContainerStyle={{ paddingVertical: 8 }}
           ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
           renderItem={({ item }) => (
-            <DeviceView device={item} onPress={() => {}} />
+            <DeviceView device={item} onPress={() => {
+              console.log(item);
+              navigation.navigate(StackRoutes.DeviceInfo, {
+                device: item,
+              });
+            }} />
           )}
         />
       {/* </View> */}

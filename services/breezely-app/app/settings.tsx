@@ -1,29 +1,66 @@
+import React, { useEffect, useState } from "react";
+import ProfileTab from "@/componets/profileTab";
+import Setting from "@/componets/setting";
 import { BACKEND_URL } from "@/config/constants";
 import { useUserInfo } from "@/hooks/queries/useUserInfo";
 import { useAuth } from "@/hooks/useAuth";
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Button } from "react-native";
+import { View, StyleSheet, SafeAreaView, Alert } from "react-native";
 
 export default function Settings({ navigation }: { navigation: any }) {
-  const {data: userData, isLoading, isError} = useUserInfo()
+  const { data: user, isLoading, isError } = useUserInfo();
+  const { logout } = useAuth();
+
+  const logoutUser = () =>
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      {
+        text: "Cancel",
+        onPress: () => console.log("Cancel Pressed"),
+      },
+      {
+        text: "Logout",
+        onPress: async () => {
+          logout();
+        },
+      },
+    ]);
 
   return (
-    <View style={styles.container}>
-      <Text>Settings</Text>
-      <Text>userData: {JSON.stringify(userData)}</Text>
-      <Text>IsLoading: {JSON.stringify(isLoading)}</Text>
-      <Text>IsError: {JSON.stringify(isError)}</Text>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.profileTabContainer}>
+        <ProfileTab
+          name={isLoading ? "Loading ..." : user?.fullName ?? ""}
+          email={isLoading ? "Loading ..." : user?.userName ?? ""}
+          buttonText="Edit Profile"
+          onPress={() => {
+            navigation.navigate("EditProfile");
+          }}
+        />
+      </View>
+      <View style={styles.settingContainer}>
+        <Setting
+          title="Rooms"
+          onPress={() => {
+            navigation.navigate("Rooms");
+          }}
+        />
+        <Setting title="Language" onPress={() => {}} />
+        <Setting title="Logout" onPress={logoutUser} textColor={"#FF5C00"} />
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "stretch",
-    justifyContent: "flex-start",
-    width: "100%",
-    padding: 5,
+    backgroundColor: "#F9F9F9",
+  },
+  profileTabContainer: {
+    marginHorizontal: 8,
+    marginTop: 15,
+  },
+  settingContainer: {
+    marginHorizontal: 12,
+    marginTop: 20,
   },
 });
