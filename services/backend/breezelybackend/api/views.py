@@ -3,7 +3,8 @@ import json
 import cryptography.fernet as fernet
 from rest_framework.generics import GenericAPIView
 
-from ..serializers import UserSerializer
+from .serializers import DeviceSerializer, UserSerializer
+from .models import Device, User
 
 
 from ..custom_resource_protector import CustomResourceProtector
@@ -77,16 +78,59 @@ class UserInfoView(GenericAPIView):
     def get(self, request):
         token = request.oauth_token
         print(token)
+        user = User.objects.filter(zitadel_id=token.get("sub")).first()
+        if not user:
+            return Response(data={"details": "User not found"},
+                            status=status.HTTP_404_NOT_FOUND)
+        return Response(data=UserSerializer(user).data,
+                        status=status.HTTP_200_OK)
         return JsonResponse(dict(message={
             "userName": token.get('username', None),
             "fullName": token.get('given_name', None) + " " + token.get("family_name", None),
-            "picture": token.get("picture", None),
             "id": token.get("sub", None)
         }))
 
 class PushTokenView(GenericAPIView):
     @require_auth(scopes=None)
     def post(self, request):
-        print(request.data)
-        return Response(data=request.data,
+        query = User.objects.filter(zitadel_id=request.oauth_token.get("sub"))
+        if query.exists():
+            print(f"Query result: {query.first().__dict__}")
+            query.update(expo_push_token=request.data.get("expo_push_token"))
+            return Response(data={"details": "User updated"},
                             status=status.HTTP_200_OK)
+        else:
+            return Response(data={"details": "User not found"},
+                            status=status.HTTP_404_NOT_FOUND)
+            
+class DevicesView(GenericAPIView):
+    @require_auth(scopes=None)
+    def get(self, request):
+        user = User.objects.filter(zitadel_id=request.oauth_token.get("sub")).first()
+        if not user:
+            return Response(data={"details": "User not found"},
+                            status=status.HTTP_404_NOT_FOUND)
+        devices = Device.objects.filter(user=user)
+        if devices.exists():
+            return Response(data=DeviceSerializer(devices, many=True).data,
+                            status=status.HTTP_200_OK)
+        else:
+            return Response(data={"details": "No devices found"},
+                            status=status.HTTP_404_NOT_FOUND)
+            
+    def post(self, request):
+        client = thingsboard_helpers.ThingsBoardClient().client
+        res = client.get_user()
+        return Response(data=res.to_dict(),
+                        status=status.HTTP_200_OK) 
+
+class DeviceView(GenericAPIView):
+    @require_auth(scopes=None)
+    def get(self, request, device_id):
+        device = Device.objects.filter(device_id=device_id).first()
+        if device:
+            return Response(data=DeviceSerializer(device).data,
+                            status=status.HTTP_200_OK)
+        else:
+            return Response(data={"details": "Device not found"},
+                            status=status.HTTP_404_NOT_FOUND)

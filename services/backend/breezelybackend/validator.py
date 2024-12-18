@@ -58,7 +58,7 @@ class ZitadelIntrospectTokenValidator(IntrospectTokenValidator):
         )
         response.raise_for_status()
         token_data = response.json()
-        print(f"Token data from introspection: {token_data}")
+        # print(f"Token data from introspection: {token_data}")
         return token_data
 
     def match_token_scopes(self, token, or_scopes):
@@ -71,7 +71,7 @@ class ZitadelIntrospectTokenValidator(IntrospectTokenValidator):
         return False
 
     def validate_token(self, token, scopes, request):
-        print(f"Token: {token}\n")
+        # print(f"Token: {token}\n")
         now = int(time.time())
         if not token:
             raise ValidatorError(
