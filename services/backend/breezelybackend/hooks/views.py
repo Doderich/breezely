@@ -31,8 +31,7 @@ class ZitadelWebhookView(GenericAPIView):
         
         user_id = zitadel_helpers.extract_user_id(res)
         print(user_id)
-        created_user = User.objects.create(name=first_name + " " + last_name, email=user_email, zitadel_id=user_id)
-        user_serializer = UserSerializer(instance=created_user)
+        User.objects.create(name=first_name + " " + last_name, email=user_email, zitadel_id=user_id)
         return Response(status=status.HTTP_200_OK)
     
     def get(self, request):

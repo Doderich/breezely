@@ -6,7 +6,7 @@ from rest_framework.generics import GenericAPIView
 
 from .lib import getUserFromRequest
 
-from .serializers import DeviceSerializer, UserSerializer
+from .serializers import DeviceSerializer, MergedDevicesSerializer, UserSerializer
 from .models import Device, User
 
 
@@ -56,25 +56,6 @@ class ThingsBoardClientView(GenericAPIView):
                         status=status.HTTP_200_OK)
         
 
-class UserCreationView(GenericAPIView):
-    @require_auth(scopes=None)
-    def post(self, request):
-        data = request.data
-        user = None
-
-        user_serializer = UserCreationSerializer(data=data)
-        if user_serializer.is_valid(raise_exception=True):
-            user = user_serializer.save()
-        
-        if not user:
-            return Response(data={"details": "User creation failed due to invalid data"},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        # todo: 
-        # Take email from login as thingsboard email, create a randomly generated pw and encrypt it
-        # Create User in thingsboard as customer, retrieve thingsboard id
-        # save newly created data in user instance
-
 
 class UserInfoView(GenericAPIView):
     @require_auth(scopes=None)
@@ -87,11 +68,6 @@ class UserInfoView(GenericAPIView):
                             status=status.HTTP_404_NOT_FOUND)
         return Response(data=UserSerializer(user).data,
                         status=status.HTTP_200_OK)
-        return JsonResponse(dict(message={
-            "userName": token.get('username', None),
-            "fullName": token.get('given_name', None) + " " + token.get("family_name", None),
-            "id": token.get("sub", None)
-        }))
 
 class PushTokenView(GenericAPIView):
     @require_auth(scopes=None)
@@ -123,16 +99,18 @@ class DevicesView(GenericAPIView):
                 print(e)
                 return Response(data={"details": "Failed to retrieve device data"},
                                 status=status.HTTP_400_BAD_REQUEST)
-            merged_devices.append({"device": DeviceSerializer(device).data, "telemetry": telemetry})
-        return Response(data={"devices": merged_devices},
+            merged_devices.append({"device": device, "telemetry": telemetry})
+        merged_devices_serialized = MergedDevicesSerializer(merged_devices, many=True)
+        return Response(data=merged_devices_serialized.data,
                         status=status.HTTP_200_OK)
         
     @require_auth(scopes=None)
     def post(self, request):
         user = getUserFromRequest(request)
         client = thingsboard_helpers.ThingsBoardClient().client
-        device_data = {**request.data, "user": user.id}
-        device = DeviceSerializer(data=device_data)
+        data = request.data
+        data["user"] = user.id
+        device = DeviceSerializer(data=data)
         if not device.is_valid(raise_exception=True):
             return Response(data=device.errors,
                             status=status.HTTP_400_BAD_REQUEST)
@@ -149,13 +127,15 @@ class DevicesView(GenericAPIView):
                         status=status.HTTP_201_CREATED)
         
         
+DEVICE_NOT_FOUND = "Device not found"
+
 class DeviceView(GenericAPIView):
     @require_auth(scopes=None)
     def get(self, request, device_id):
         user = getUserFromRequest(request)
         device = Device.objects.filter(id=device_id, user=user).first()
         if not device:
-            return Response(data={"details": "Device not found"},
+            return Response(data={"details": DEVICE_NOT_FOUND},
                             status=status.HTTP_404_NOT_FOUND)
         client = thingsboard_helpers.ThingsBoardClient().client
         try:
@@ -171,7 +151,7 @@ class DeviceView(GenericAPIView):
         user = getUserFromRequest(request)
         device = Device.objects.filter(id=device_id, user=user).first()
         if not device:
-            return Response(data={"details": "Device not found"},
+            return Response(data={"details": DEVICE_NOT_FOUND},
                             status=status.HTTP_404_NOT_FOUND)
         device_data = {**request.data, "user": user.id}
         device_serializer = DeviceSerializer(device, data=device_data)
@@ -186,7 +166,7 @@ class DeviceView(GenericAPIView):
         user = getUserFromRequest(request)
         device = Device.objects.filter(id=device_id, user=user).first()
         if not device:
-            return Response(data={"details": "Device not found"},
+            return Response(data={"details": DEVICE_NOT_FOUND},
                             status=status.HTTP_404_NOT_FOUND)
         client = thingsboard_helpers.ThingsBoardClient().client
         try:
