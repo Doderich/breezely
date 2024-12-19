@@ -1,7 +1,10 @@
 from django.http import JsonResponse
 import json
 import cryptography.fernet as fernet
+from django.urls import reverse
 from rest_framework.generics import GenericAPIView
+
+from .lib import getUserFromRequest
 
 from .serializers import DeviceSerializer, UserSerializer
 from .models import Device, User
@@ -106,31 +109,90 @@ class PushTokenView(GenericAPIView):
 class DevicesView(GenericAPIView):
     @require_auth(scopes=None)
     def get(self, request):
-        user = User.objects.filter(zitadel_id=request.oauth_token.get("sub")).first()
-        if not user:
-            return Response(data={"details": "User not found"},
-                            status=status.HTTP_404_NOT_FOUND)
+        user = getUserFromRequest(request)
         devices = Device.objects.filter(user=user)
-        if devices.exists():
-            return Response(data=DeviceSerializer(devices, many=True).data,
+        if not devices:
+            return Response(data={"devices": []},
                             status=status.HTTP_200_OK)
-        else:
-            return Response(data={"details": "No devices found"},
-                            status=status.HTTP_404_NOT_FOUND)
-            
-    def post(self, request):
         client = thingsboard_helpers.ThingsBoardClient().client
-        res = client.get_user()
-        return Response(data=res.to_dict(),
-                        status=status.HTTP_200_OK) 
-
+        merged_devices = []
+        for device in devices:
+            try:
+                telemetry = client.telemetry_controller.get_latest_timeseries_using_get("DEVICE", device.device_id)
+            except Exception as e:
+                print(e)
+                return Response(data={"details": "Failed to retrieve device data"},
+                                status=status.HTTP_400_BAD_REQUEST)
+            merged_devices.append({"device": DeviceSerializer(device).data, "telemetry": telemetry})
+        return Response(data={"devices": merged_devices},
+                        status=status.HTTP_200_OK)
+        
+    @require_auth(scopes=None)
+    def post(self, request):
+        user = getUserFromRequest(request)
+        client = thingsboard_helpers.ThingsBoardClient().client
+        device_data = {**request.data, "user": user.id}
+        device = DeviceSerializer(data=device_data)
+        if not device.is_valid(raise_exception=True):
+            return Response(data=device.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
+        try:
+            print("Assigning device")
+            client.assign_device_to_customer(user.thingsboard_id, device.validated_data.get('device_id'))
+            telemetry = client.telemetry_controller.get_latest_timeseries_using_get("DEVICE", device.validated_data.get('device_id'))
+        except Exception as e:
+            print(e)
+            return Response(data={"details": "Failed to assign device to user"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        device.save()
+        return Response(data={"device": device.data, "telemetry": telemetry},
+                        status=status.HTTP_201_CREATED)
+        
+        
 class DeviceView(GenericAPIView):
     @require_auth(scopes=None)
     def get(self, request, device_id):
-        device = Device.objects.filter(device_id=device_id).first()
-        if device:
-            return Response(data=DeviceSerializer(device).data,
-                            status=status.HTTP_200_OK)
-        else:
+        user = getUserFromRequest(request)
+        device = Device.objects.filter(id=device_id, user=user).first()
+        if not device:
             return Response(data={"details": "Device not found"},
                             status=status.HTTP_404_NOT_FOUND)
+        client = thingsboard_helpers.ThingsBoardClient().client
+        try:
+            telemetry = client.telemetry_controller.get_latest_timeseries_using_get("DEVICE", device.device_id)
+        except Exception as e:
+            print(e)
+            return Response(data={"details": "Failed to retrieve telemetry data"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={"device": DeviceSerializer(device).data, "telemetry": telemetry},
+                        status=status.HTTP_200_OK)
+    @require_auth(scopes=None)    
+    def put(self, request, device_id):
+        user = getUserFromRequest(request)
+        device = Device.objects.filter(id=device_id, user=user).first()
+        if not device:
+            return Response(data={"details": "Device not found"},
+                            status=status.HTTP_404_NOT_FOUND)
+        device_data = {**request.data, "user": user.id}
+        device_serializer = DeviceSerializer(device, data=device_data)
+        if not device_serializer.is_valid(raise_exception=True):
+            return Response(data=device_serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
+        device_serializer.save()
+        return Response(data=device_serializer.data,
+                        status=status.HTTP_200_OK)
+    @require_auth(scopes=None)
+    def delete(self, request, device_id):
+        user = getUserFromRequest(request)
+        device = Device.objects.filter(id=device_id, user=user).first()
+        if not device:
+            return Response(data={"details": "Device not found"},
+                            status=status.HTTP_404_NOT_FOUND)
+        client = thingsboard_helpers.ThingsBoardClient().client
+        try:
+            client.unassign_device_from_customer(device.device_id)
+        except Exception as e:
+            print(e)
+        device.delete()
+        return Response(data={"details": "Device deleted"},
+                        status=status.HTTP_200_OK)
