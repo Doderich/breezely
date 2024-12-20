@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import DeviceView, DevicesView, PushTokenView, RoomView, RoomsView, ThingboardAPIView, ThingsBoardClientView, UserInfoView
+from .views import DeviceView, DevicesView, ExpoPushTest, PushTokenView, RoomView, RoomsView, ThingboardAPIView, ThingsBoardClientView, UserInfoView
 
 urlpatterns = [
     path('http-api', ThingboardAPIView.as_view()),
@@ -11,4 +11,6 @@ urlpatterns = [
     path('devices/<str:device_id>', DeviceView.as_view()),
     path('rooms', RoomsView.as_view()),
     path('rooms/<str:room_id>', RoomView.as_view()),
+    path('push', ExpoPushTest.as_view()),
+    
 ]

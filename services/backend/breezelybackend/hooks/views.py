@@ -1,7 +1,9 @@
 from rest_framework.generics import GenericAPIView
 from tb_rest_client.rest_client_ce import Customer
 
-from ..api.models import User
+from ..helpers import expo_push_helpers
+
+from ..api.models import Device, User
 
 from ..helpers import zitadel_helpers
 from ..helpers import thingsboard_helpers
@@ -49,6 +51,47 @@ class ZitadelWebhookView(GenericAPIView):
     
 class ThingsboardWebhook(GenericAPIView):
     def post(self, request):
+        data = request.data
+        print(data)
+        customer_info = data.get("customerId", None)
+        if not customer_info:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+        customer_id = customer_info.get("id", None)
+        if not customer_id:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.filter(thingsboard_id=customer_id).first()
+        if not user:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        expo_push_token = user.expo_push_token
+        details = data.get("details", None)
+       
+        if details:
+            notification_type = details.get("type", "default")
+
+        device_info = data.get("originator", None)
+        if not device_info:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        device_id = device_info.get("id", None)
+        if not device_id:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+        device = Device.objects.filter(device_id=device_id).first()
+        if not device:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        device_name = device.name
+        room_name = device.assigned_room.name if device.assigned_room else None
+
+        notification_details = {
+            "device_name": device_name,
+            "room_name": room_name,
+        }
+
+
+        expo_push_helpers.send_push_message(expo_push_token, notification_type, notification_details)
         
         return Response(status=status.HTTP_200_OK)
     

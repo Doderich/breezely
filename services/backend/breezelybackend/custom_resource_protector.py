@@ -9,6 +9,8 @@ import functools
 
 from django.http import JsonResponse
 
+from .validator import ValidatorError
+
 class CustomResourceProtector(ResourceProtector):
     def __call__(self, scopes=None, optional=False, **kwargs):
         claims = kwargs
@@ -29,7 +31,8 @@ class CustomResourceProtector(ResourceProtector):
                     return return_error_response(error)
                 except OAuth2Error as error:
                     return return_error_response(error)
-                
+                except ValidatorError as error:
+                    return JsonResponse(error.error, status=error.status_code)
                 # Pass the instance correctly for class-based views
                 return f(instance_or_request, *args, **kwargs)
             return decorated

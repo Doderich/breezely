@@ -1,5 +1,6 @@
 from rest_framework.generics import GenericAPIView
 
+
 from .lib import get_user_from_request, merge_devices_and_telemetry
 
 from .serializers import DeviceSerializer, MergedDevicesSerializer, RoomCreateUpdateSerializer, RoomSerializer, UserSerializer
@@ -8,7 +9,7 @@ from .models import Device, Room, User
 
 from ..custom_resource_protector import CustomResourceProtector
 from .. import validator
-from ..helpers import thingsboard_helpers
+from ..helpers import thingsboard_helpers, expo_push_helpers
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -67,12 +68,14 @@ class DevicesView(GenericAPIView):
     @require_auth(scopes=None)
     def get(self, request):
         user = get_user_from_request(request)
+        print(user)
         devices = Device.objects.filter(user=user)
         if not devices:
             return Response(data={"devices": []},
                             status=status.HTTP_200_OK)
-        merged_devices_serialized = MergedDevicesSerializer(merge_devices_and_telemetry(devices), many=True)
-        return Response(data=merged_devices_serialized.data,
+        
+        merged_devices_ser = MergedDevicesSerializer(instance=merge_devices_and_telemetry(devices), many=True)
+        return Response(data=merged_devices_ser.data,
                         status=status.HTTP_200_OK)
         
     @require_auth(scopes=None)
@@ -217,3 +220,15 @@ class RoomView(GenericAPIView):
         room.delete()
         return Response(data={"details": "Room deleted"},
                         status=status.HTTP_204_NO_CONTENT)
+    
+
+class ExpoPushTest(GenericAPIView):
+    @require_auth(scopes=None)
+    def post(self, request):
+        #data = request.data
+
+        HARDCODED_PUSH_TOKEN = "ExponentPushToken[5Pf4T8A0Dn6wuJm7Zu4ZCO]"
+        HARDCODED_DATA = "Hello from Thingsboard"
+        expo_push_helpers.send_push_message(HARDCODED_PUSH_TOKEN, HARDCODED_DATA)
+        
+        return Response(status=status.HTTP_200_OK)
