@@ -4,10 +4,10 @@ import cryptography.fernet as fernet
 from django.urls import reverse
 from rest_framework.generics import GenericAPIView
 
-from .lib import getUserFromRequest
+from .lib import getUserFromRequest, mergeDevicesAndTelemetry
 
-from .serializers import DeviceSerializer, MergedDevicesSerializer, UserSerializer
-from .models import Device, User
+from .serializers import DeviceSerializer, MergedDevicesSerializer, RoomCreateUpdateSerializer, RoomSerializer, UserSerializer
+from .models import Device, Room, User
 
 
 from ..custom_resource_protector import CustomResourceProtector
@@ -90,17 +90,7 @@ class DevicesView(GenericAPIView):
         if not devices:
             return Response(data={"devices": []},
                             status=status.HTTP_200_OK)
-        client = thingsboard_helpers.ThingsBoardClient().client
-        merged_devices = []
-        for device in devices:
-            try:
-                telemetry = client.telemetry_controller.get_latest_timeseries_using_get("DEVICE", device.device_id)
-            except Exception as e:
-                print(e)
-                return Response(data={"details": "Failed to retrieve device data"},
-                                status=status.HTTP_400_BAD_REQUEST)
-            merged_devices.append({"device": device, "telemetry": telemetry})
-        merged_devices_serialized = MergedDevicesSerializer(merged_devices, many=True)
+        merged_devices_serialized = MergedDevicesSerializer(mergeDevicesAndTelemetry(devices), many=True)
         return Response(data=merged_devices_serialized.data,
                         status=status.HTTP_200_OK)
         
@@ -176,3 +166,71 @@ class DeviceView(GenericAPIView):
         device.delete()
         return Response(data={"details": "Device deleted"},
                         status=status.HTTP_200_OK)
+        
+        
+        
+class RoomsView(GenericAPIView):
+    @require_auth(scopes=None)
+    def get(self, request):
+        user = getUserFromRequest(request)
+        if not user.rooms:
+            return Response(data={RoomSerializer([], many=True).data},
+                            status=status.HTTP_200_OK)
+            
+        return Response(data=RoomSerializer(user.rooms, many=True).data,
+                        status=status.HTTP_200_OK)
+        
+    @require_auth(scopes=None)
+    def post(self, request):
+        user = getUserFromRequest(request)
+        data = request.data
+        data["user"] = user.id
+        room = RoomCreateUpdateSerializer(data=data)
+        
+        if not room.is_valid(raise_exception=True):
+            return Response(data=room.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        room_instance = room.save()
+        return Response(data=RoomSerializer(room_instance).data,
+                        status=status.HTTP_201_CREATED)
+
+class RoomView(GenericAPIView):
+    @require_auth(scopes=None)
+    def get(self, request, room_id):
+        user = getUserFromRequest(request)
+        room = Room.objects.filter(id=room_id, user=user).first()
+        if not room:
+            return Response(data={"details": "Room not found"},
+                            status=status.HTTP_404_NOT_FOUND)
+        
+        return Response(data=RoomSerializer(room).data,
+                        status=status.HTTP_200_OK)
+    @require_auth(scopes=None)    
+    def put(self, request, room_id):
+        user = getUserFromRequest(request)
+        room = Room.objects.filter(id=room_id, user=user).first()
+        if not room:
+            return Response(data={"details": "Room not found"},
+                            status=status.HTTP_404_NOT_FOUND)
+        data = request.data
+        data["user"] = user.id
+        room_serializer = RoomCreateUpdateSerializer(room, data=data)
+        if not room_serializer.is_valid(raise_exception=True):
+            return Response(data=room_serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
+        room_serializer.save()
+        return Response(data=RoomSerializer(room_serializer.instance).data,
+                        status=status.HTTP_200_OK)
+        
+        
+    @require_auth(scopes=None)
+    def delete(self, request, room_id):
+        user = getUserFromRequest(request)
+        room = Room.objects.filter(id=room_id, user=user).first()
+        if not room:
+            return Response(data={"details": "Room not found"},
+                            status=status.HTTP_404_NOT_FOUND)
+        room.delete()
+        return Response(data={"details": "Room deleted"},
+                        status=status.HTTP_204_NO_CONTENT)

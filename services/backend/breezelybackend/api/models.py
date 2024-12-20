@@ -17,7 +17,7 @@ class User(BaseClass):
     email = models.EmailField(null=True)
     thingsboard_id = models.CharField(max_length=128) # check thingsboard api for what type this is
     zitadel_id = models.CharField(max_length=128) # check zitadel api for what type this is
-    expo_push_token = models.CharField(max_length=128, blank=True)
+    expo_push_token = models.CharField(max_length=128, blank=True, null=True)
     
 class Room(BaseClass):
     name = models.CharField(max_length=64)
