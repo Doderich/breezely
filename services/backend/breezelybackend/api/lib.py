@@ -6,7 +6,7 @@ from ..helpers import thingsboard_helpers
 from .models import User
 
 
-def getUserFromRequest(request):
+def get_user_from_request(request):
     # Get the user from the request
     user = User.objects.filter(zitadel_id=request.oauth_token.get("sub")).first()
     if not user:
@@ -15,7 +15,7 @@ def getUserFromRequest(request):
     else:
         return user
     
-def mergeDevicesAndTelemetry(devices):
+def merge_devices_and_telemetry(devices):
     client = client = thingsboard_helpers.ThingsBoardClient().client
     merged_devices = []
     for device in devices:

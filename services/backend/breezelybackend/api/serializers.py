@@ -1,4 +1,4 @@
-from .lib import mergeDevicesAndTelemetry
+from .lib import merge_devices_and_telemetry
 from .models import Device, Room, User
 from rest_framework import serializers
 
@@ -24,7 +24,7 @@ class RoomSerializer(serializers.ModelSerializer):
         
     def get_devices(self, obj):
         devices = obj.devices.all()
-        return MergedDevicesSerializer(mergeDevicesAndTelemetry(devices), many=True).data
+        return MergedDevicesSerializer(merge_devices_and_telemetry(devices), many=True).data
     
 class RoomCreateUpdateSerializer(serializers.ModelSerializer):
     devices = serializers.PrimaryKeyRelatedField(queryset=Device.objects.all(), many=True, write_only=True)

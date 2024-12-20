@@ -1,6 +1,5 @@
 from rest_framework.generics import GenericAPIView
-
-from ..serializers import UserSerializer
+from tb_rest_client.rest_client_ce import Customer
 
 from ..api.models import User
 
@@ -30,17 +29,16 @@ class ZitadelWebhookView(GenericAPIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
         user_id = zitadel_helpers.extract_user_id(res)
-        print(user_id)
         created_user = User.objects.create(name=first_name + " " + last_name, email=user_email, zitadel_id=user_id)
         ## todo: create user in thingsboard
-        thingsboard_user = thingsboard_helpers.create_user_in_thingsboard(created_user)
-        thingsboard_user_id = thingsboard_user.get("id", None)
+        thingsboard_conn = thingsboard_helpers.ThingsBoardClient()
+        thingsboard_user: Customer = thingsboard_conn.create_user(created_user)
+        thingsboard_user_id = thingsboard_user.id.id
         if not thingsboard_user_id:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         created_user.thingsboard_id = thingsboard_user_id
         created_user.save()
-        user_ser = UserSerializer(instance=created_user)
-        return Response(data=user_ser.data,status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
     
     def get(self, request):
         # validate user get
@@ -51,9 +49,6 @@ class ZitadelWebhookView(GenericAPIView):
     
 class ThingsboardWebhook(GenericAPIView):
     def post(self, request):
-        print("thingsboard webhook worked")
-        print("")
-        print("data:", request.data)
         
         return Response(status=status.HTTP_200_OK)
     

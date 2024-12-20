@@ -1,10 +1,6 @@
-from django.http import JsonResponse
-import json
-import cryptography.fernet as fernet
-from django.urls import reverse
 from rest_framework.generics import GenericAPIView
 
-from .lib import getUserFromRequest, mergeDevicesAndTelemetry
+from .lib import get_user_from_request, merge_devices_and_telemetry
 
 from .serializers import DeviceSerializer, MergedDevicesSerializer, RoomCreateUpdateSerializer, RoomSerializer, UserSerializer
 from .models import Device, Room, User
@@ -22,21 +18,6 @@ require_auth.register_token_validator(validator.ZitadelIntrospectTokenValidator(
 
 
 class ThingboardAPIView(GenericAPIView):
-
-    # @require_auth(None)
-    # def private(request):
-    #     """A valid access token is required to access this route
-    #     """
-    #     response = "Hello from a private endpoint! You need to be authenticated to see this."
-    #     return JsonResponse(dict(message=response))
-
-
-    # @require_auth("urn:zitadel:iam:org:project:role:read:messages")
-    # def private_scoped(request):
-    #     """A valid access token and an appropriate scope are required to access this route
-    #     """
-    #     response = "Hello from a private endpoint! You need to be authenticated and have a scope of read:messages to see this."
-    #     return JsonResponse(dict(message=response))
 
     @require_auth(scopes=None)
     def get(self, request):
@@ -85,18 +66,18 @@ class PushTokenView(GenericAPIView):
 class DevicesView(GenericAPIView):
     @require_auth(scopes=None)
     def get(self, request):
-        user = getUserFromRequest(request)
+        user = get_user_from_request(request)
         devices = Device.objects.filter(user=user)
         if not devices:
             return Response(data={"devices": []},
                             status=status.HTTP_200_OK)
-        merged_devices_serialized = MergedDevicesSerializer(mergeDevicesAndTelemetry(devices), many=True)
+        merged_devices_serialized = MergedDevicesSerializer(merge_devices_and_telemetry(devices), many=True)
         return Response(data=merged_devices_serialized.data,
                         status=status.HTTP_200_OK)
         
     @require_auth(scopes=None)
     def post(self, request):
-        user = getUserFromRequest(request)
+        user = get_user_from_request(request)
         client = thingsboard_helpers.ThingsBoardClient().client
         data = request.data
         data["user"] = user.id
@@ -122,7 +103,7 @@ DEVICE_NOT_FOUND = "Device not found"
 class DeviceView(GenericAPIView):
     @require_auth(scopes=None)
     def get(self, request, device_id):
-        user = getUserFromRequest(request)
+        user = get_user_from_request(request)
         device = Device.objects.filter(id=device_id, user=user).first()
         if not device:
             return Response(data={"details": DEVICE_NOT_FOUND},
@@ -138,7 +119,7 @@ class DeviceView(GenericAPIView):
                         status=status.HTTP_200_OK)
     @require_auth(scopes=None)    
     def put(self, request, device_id):
-        user = getUserFromRequest(request)
+        user = get_user_from_request(request)
         device = Device.objects.filter(id=device_id, user=user).first()
         if not device:
             return Response(data={"details": DEVICE_NOT_FOUND},
@@ -153,7 +134,7 @@ class DeviceView(GenericAPIView):
                         status=status.HTTP_200_OK)
     @require_auth(scopes=None)
     def delete(self, request, device_id):
-        user = getUserFromRequest(request)
+        user = get_user_from_request(request)
         device = Device.objects.filter(id=device_id, user=user).first()
         if not device:
             return Response(data={"details": DEVICE_NOT_FOUND},
@@ -172,7 +153,7 @@ class DeviceView(GenericAPIView):
 class RoomsView(GenericAPIView):
     @require_auth(scopes=None)
     def get(self, request):
-        user = getUserFromRequest(request)
+        user = get_user_from_request(request)
         if not user.rooms:
             return Response(data={RoomSerializer([], many=True).data},
                             status=status.HTTP_200_OK)
@@ -182,7 +163,7 @@ class RoomsView(GenericAPIView):
         
     @require_auth(scopes=None)
     def post(self, request):
-        user = getUserFromRequest(request)
+        user = get_user_from_request(request)
         data = request.data
         data["user"] = user.id
         room = RoomCreateUpdateSerializer(data=data)
@@ -195,23 +176,25 @@ class RoomsView(GenericAPIView):
         return Response(data=RoomSerializer(room_instance).data,
                         status=status.HTTP_201_CREATED)
 
+ROOM_NOT_FOUND = "Room not found"
+
 class RoomView(GenericAPIView):
     @require_auth(scopes=None)
     def get(self, request, room_id):
-        user = getUserFromRequest(request)
+        user = get_user_from_request(request)
         room = Room.objects.filter(id=room_id, user=user).first()
         if not room:
-            return Response(data={"details": "Room not found"},
+            return Response(data={"details": ROOM_NOT_FOUND},
                             status=status.HTTP_404_NOT_FOUND)
         
         return Response(data=RoomSerializer(room).data,
                         status=status.HTTP_200_OK)
     @require_auth(scopes=None)    
     def put(self, request, room_id):
-        user = getUserFromRequest(request)
+        user = get_user_from_request(request)
         room = Room.objects.filter(id=room_id, user=user).first()
         if not room:
-            return Response(data={"details": "Room not found"},
+            return Response(data={"details": ROOM_NOT_FOUND},
                             status=status.HTTP_404_NOT_FOUND)
         data = request.data
         data["user"] = user.id
@@ -226,10 +209,10 @@ class RoomView(GenericAPIView):
         
     @require_auth(scopes=None)
     def delete(self, request, room_id):
-        user = getUserFromRequest(request)
+        user = get_user_from_request(request)
         room = Room.objects.filter(id=room_id, user=user).first()
         if not room:
-            return Response(data={"details": "Room not found"},
+            return Response(data={"details": ROOM_NOT_FOUND},
                             status=status.HTTP_404_NOT_FOUND)
         room.delete()
         return Response(data={"details": "Room deleted"},
