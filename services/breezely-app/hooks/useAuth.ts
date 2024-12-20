@@ -53,23 +53,29 @@ interface User {
     setTokenResponse: async (responseToken: TokenResponse) => {
       const tokenConfig: TokenResponseConfig = responseToken.getRequestConfig();
       const { idToken, accessToken } = tokenConfig;
-  
-      if (accessToken) {
-        await setItemAsync(ACCESS_TOKEN_KEY, accessToken);
-        set({ accessToken });
-      }
-  
-      if (idToken) {
-        const decoded = jwtDecode(idToken);
-        set({ user: { idToken, decoded } });
-      }
+
+if (accessToken) {
+  console.log('Access Token:', accessToken); // Add this line
+  await setItemAsync(ACCESS_TOKEN_KEY, accessToken);
+  set({ accessToken });
+}
+
+if (idToken) {
+  console.log('ID Token:', idToken); // Add this line
+  try {
+    const decoded = jwtDecode(idToken);
+    set({ user: { idToken, decoded } });
+  } catch (error) {
+    console.error('Invalid ID Token:', error); // Add this line
+  }
+}
     },
   
     maybeRefreshToken: async () => {
       try {
         const storedAccessToken = await getItemAsync(ACCESS_TOKEN_KEY);
         if (storedAccessToken) {
-          // Check if token is expired
+          console.log('Stored Access Token:', storedAccessToken); // Add this line
           try {
             const decoded = jwtDecode(storedAccessToken);
             const currentTime = Date.now() / 1000;
@@ -81,8 +87,6 @@ interface User {
             console.log('Invalid token:', e);
           }
         }
-        // If we get here, either there's no token or it's expired
-        await get().logout();
       } catch (error) {
         console.error('Token validation failed:', error);
         await get().logout();
@@ -187,12 +191,10 @@ export const useAuth = () => {
 
   const authenticatedFetch = async (input: RequestInfo, init?: RequestInit) => {
     const options = init ?? {};
-    if (accessToken) {
-      if (!options.headers) options.headers = {};
-      // @ts-ignore
-      options.headers['Authorization'] = `Bearer ${accessToken}`;
-    }
-
+    if(!accessToken) throw new Error('No access token');
+    if (!options.headers) options.headers = {};
+    (options.headers as Record<string, string>)['Authorization'] = `Bearer ${accessToken}`;
+    
     const response = await fetch(input, options);
     if (response.status === 401) {
       await logout();
@@ -207,6 +209,7 @@ export const useAuth = () => {
     request,
     user,
     setCodeUsed,
+    isHandlingAuth,
     promptAsync,
     logout,
     authError,

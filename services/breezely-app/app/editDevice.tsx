@@ -3,9 +3,10 @@ import { RouteProp } from "@react-navigation/native";
 import { View, Text, StyleSheet } from "react-native";
 import FlowText from "@/componets/flowText";
 import InfoLabelEdit from "@/componets/infoLabelEdit";
-import { DeviceTypes } from "@/types/device";
+import { Device, DeviceTypes } from "@/types/device";
 import SaveButton from "@/componets/saveButton";
 import { TabRoutes } from "@/navigation/Routes";
+import { useCreateDevice, useDevice, useUpdateDevice } from "@/hooks/queries/useDevices";
 
 export default function EditDevice({
   route,
@@ -14,13 +15,17 @@ export default function EditDevice({
   route: RouteProp<any, any>;
   navigation: any;
 }) {
-  const device = route.params?.device;
+  const routeDevice = route.params?.device?.device;
   const title = route.params?.title;
+  const {data: device} = useDevice(routeDevice?.id, {initialData: routeDevice ?? undefined});
+  
+  const {mutate: updateDevice} = useUpdateDevice();
+  const {mutate: createDevice} = useCreateDevice();
 
-  const [deviceId, setDeviceId] = useState(device?.deviceId);
-  const [deviceName, setDeviceName] = useState(device?.name);
-  const [deviceType, setDeviceType] = useState(device?.deviceType);
-  const [deviceRoom, setDeviceRoom] = useState(device?.roomId);
+  const [deviceId, setDeviceId] = useState(routeDevice?.device_id);
+  const [deviceName, setDeviceName] = useState(routeDevice?.name);
+  const [deviceType, setDeviceType] = useState(routeDevice?.type);
+  const [deviceRoom, setDeviceRoom] = useState(routeDevice?.assigned_room);
 
   useEffect(() => {
     navigation.setOptions({ title: title });
@@ -33,28 +38,37 @@ export default function EditDevice({
       <View style={styles.deviceInfoDetails}>
         <InfoLabelEdit
           info="Device ID"
-          data={deviceId}
+          data={deviceId ?? ""}
           onChangeText={(text) => setDeviceId(text)}
         />
         <InfoLabelEdit
           info="Device Name"
-          data={deviceName}
+          data={deviceName ?? ""}
           onChangeText={(text) => setDeviceName(text)}
         />
         <InfoLabelEdit
           info="Device Type"
-          data={DeviceTypes[deviceType]}
+          data={DeviceTypes[deviceType as DeviceTypes]}
           onChangeText={(text) => setDeviceType(text)}
         />
-        <InfoLabelEdit
+        {/* <InfoLabelEdit
           info="Room"
-          data={deviceRoom}
+          data={deviceRoom ?? ""}
           onChangeText={(text) => setDeviceRoom(text)}
-        />
+        /> */}
       </View>
       <View style={styles.saveButtonContainer}>
         <SaveButton
           onPress={() => {
+            if(deviceId && deviceName && deviceType) {
+              console.log(device, device?.device.id, deviceId, deviceName, deviceType, deviceRoom);
+              if(device?.device.id) {
+
+                updateDevice({id: device.device.id, device_id: deviceId, name: deviceName, type: deviceType});
+              } else {
+                createDevice({device_id: deviceId, name: deviceName, type: deviceType});
+              }
+            }
             navigation.navigate(TabRoutes.App);
           }}
         />

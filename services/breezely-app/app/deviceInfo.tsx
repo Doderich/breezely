@@ -6,7 +6,8 @@ import DeviceInfoLabel from "@/componets/deviceInfoLabel";
 import Feather from "@expo/vector-icons/Feather";
 import FlowText from "@/componets/flowText";
 import { StackRoutes } from "@/navigation/Routes";
-import { DeviceTypes } from "@/types/device";
+import { Device, DeviceTypes } from "@/types/device";
+import { useDeleteDevice, useDevice } from "@/hooks/queries/useDevices";
 
 export default function DeviceInfo({
   route,
@@ -15,9 +16,11 @@ export default function DeviceInfo({
   route: RouteProp<any, any>;
   navigation: any;
 }) {
-  const device = route.params?.device;
+  const routeDevice = route.params?.device as Device;
+  const {data: device, isLoading, isError} = useDevice(routeDevice.device.id, {initialData: routeDevice ?? undefined});
+  const {mutate: deleteDevice , error} = useDeleteDevice();
 
-  const deleteDevice = () =>
+  const deleteDeviceCb = () =>
     Alert.alert("Delete Device", "Are you sure you want to delete this device?", [
       {
         text: "Cancel",
@@ -26,7 +29,9 @@ export default function DeviceInfo({
       {
         text: "Delete",
         onPress: async () => {
-          console.log("Delete device");
+          if(!device) return; 
+          deleteDevice(device?.device.id);
+          navigation.navigate(StackRoutes.Home);
         },
       },
     ]);
@@ -34,7 +39,7 @@ export default function DeviceInfo({
   return (
     <View style={styles.container}>
       <View style={styles.deviceInfo}>
-        <DeviceInfoLabel device={device} />
+        {device && <DeviceInfoLabel device={device} />}
         <View style={styles.deviceInfoActions}>
           <Pressable
             onPress={() => {
@@ -46,21 +51,21 @@ export default function DeviceInfo({
             <Feather name="edit" size={24} color="black" />
           </Pressable>
           <Pressable
-            onPress={deleteDevice}
+            onPress={deleteDeviceCb}
           >
             <Feather name="trash-2" size={24} color="red" />
           </Pressable>
         </View>
       </View>
       <FlowText flowText={"Info"} type="text3" styleProps={styles.infoText} />
-
-      <View style={styles.deviceInfoDetails}>
-        <InfoLabel info="Device ID" data={device.deviceId} />
-        <InfoLabel info="Device Name" data={device.name} />
-        <InfoLabel info="Device Type" data={DeviceTypes[device.deviceType]} />
-        <InfoLabel info="Room" data={device.roomId} />
-        <InfoLabel info="Created Date" data={device.createdAt} />
-      </View>
+      
+      {device && <View style={styles.deviceInfoDetails}>
+        <InfoLabel info="Device ID" data={device?.device?.device_id} />
+        <InfoLabel info="Device Name" data={device?.device?.name} />
+        {/* <InfoLabel info="Device Type" data={DeviceTypes[device?.device?.type]} /> */}
+        {/* <InfoLabel info="Room" data={device?.device?.assigned_room} /> */}
+        {/* <InfoLabel info="Created Date" data={device.createdAt} /> */}
+      </View>}
     </View>
   );
 }

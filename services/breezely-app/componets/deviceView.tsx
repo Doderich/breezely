@@ -29,13 +29,13 @@ const DeviceView: React.FC<Props> = ({ device, onPress = () => {} }) => {
         <View style={style.dataItemsWrapper}>
           <View style={style.dataItemContainer}>
             <FontAwesome5
-              name={device.openStatus ? "unlock" : "lock"}
+              name={device.telemetry.window_status[0].value ? "unlock" : "lock"}
               size={22}
               color={iconColor}
             />
             <FlowText
               type={"text5"}
-              flowText={device.openStatus ? "open" : "closed"}
+              flowText={device.telemetry.window_status[0].value ? "open" : "closed"}
               color={dataColor}
             />
           </View>
@@ -47,7 +47,7 @@ const DeviceView: React.FC<Props> = ({ device, onPress = () => {} }) => {
             />
             <FlowText
               type={"text5"}
-              flowText={`${device.temperatur}°`}
+              flowText={`${device.telemetry.temperature[0].value}°`}
               color={dataColor}
             />
           </View>
@@ -55,7 +55,7 @@ const DeviceView: React.FC<Props> = ({ device, onPress = () => {} }) => {
             <FontAwesome6 name="droplet" size={22} color={iconColor} />
             <FlowText
               type={"text5"}
-              flowText={`${device.humidity}%`}
+              flowText={`${device.telemetry.humidity[0].value}%`}
               color={dataColor}
             />
           </View>

@@ -15,10 +15,6 @@ WebBrowser.maybeCompleteAuthSession();
 
 export default function App() {
 
-  const { expoPushToken, notification } = usePushnotification();
-
-  const data = JSON.stringify(notification, undefined, 2);
-
   const {
     request,
     user,
@@ -60,14 +56,6 @@ export default function App() {
         ) : null}
         {/* <Text style={[styles.heading]}>Redirect Uri:</Text>
       <Text style={[styles.text]}>{redirectUri}</Text> */}
-        <Text style={[styles.heading]}>Token Data:</Text>
-        {user ? (
-          <Text style={[styles.text]}>{JSON.stringify(user.decoded)}</Text>
-        ) : null}
-
-        <Text>Token: {expoPushToken?.data}</Text>
-        <Text>{data}</Text>
-        <ReactQueryExample />
       </View>
   );
 }

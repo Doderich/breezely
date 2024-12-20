@@ -16,12 +16,12 @@ const dataColor = "#75A7F7";
 
 const deviceInfoLabel: React.FC<Props> = ({ device }) => {
   const deviceInfoIcon = () => {
-    switch (device.deviceType) {
+    switch (device.device.type) {
       case DeviceTypes.Window:
         return (
           <MaterialCommunityIcons
             name={
-              device.openStatus
+              device.telemetry.window_status[0].value
                 ? "window-open-variant"
                 : "window-closed-variant"
             }
@@ -32,7 +32,7 @@ const deviceInfoLabel: React.FC<Props> = ({ device }) => {
       case DeviceTypes.Door:
         return (
           <FontAwesome5
-            name={device.openStatus ? "door-open" : "door-closed"}
+            name={device.telemetry.window_status[0].value ? "door-open" : "door-closed"}
             size={24}
             color={dataColor}
           />
@@ -45,7 +45,7 @@ const deviceInfoLabel: React.FC<Props> = ({ device }) => {
   return (
     <View style={style.deviceInfo}>
       <View style={style.deviceInfoIcon}>{deviceInfoIcon()}</View>
-      <FlowText type={"text5"} flowText={device.name} color={"#130F26"} />
+      <FlowText type={"text5"} flowText={device.device.name} color={"#130F26"} />
     </View>
   );
 };

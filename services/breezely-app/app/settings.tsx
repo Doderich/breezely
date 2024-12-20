@@ -28,8 +28,8 @@ export default function Settings({ navigation }: { navigation: any }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.profileTabContainer}>
         <ProfileTab
-          name={isLoading ? "Loading ..." : user?.fullName ?? ""}
-          email={isLoading ? "Loading ..." : user?.userName ?? ""}
+          name={isLoading ? "Loading ..." : user?.name ?? ""}
+          email={isLoading ? "Loading ..." : user?.email ?? ""}
           buttonText="Edit Profile"
           onPress={() => {
             navigation.navigate("EditProfile");

@@ -4,6 +4,8 @@ import * as Notifications from 'expo-notifications'
 
 import Constants from "expo-constants"
 import { Platform } from 'react-native'
+import { useAssignPushToken } from './queries/useUserInfo'
+import { useAuth } from './useAuth'
 
 export interface PushNotifcationState {
     notification?: Notifications.Notification,
@@ -11,7 +13,10 @@ export interface PushNotifcationState {
 }
 
 
-export const usePushnotification = (): PushNotifcationState => {
+export const usePushnotification = (): PushNotifcationState | undefined => {
+    const {mutate: assignPushToken} = useAssignPushToken()
+    const {user} = useAuth()
+    if(!user) return undefined
     Notifications.setNotificationHandler({
         handleNotification: async ( ) => ({
             shouldPlaySound: false,
@@ -79,6 +84,13 @@ export const usePushnotification = (): PushNotifcationState => {
         }
 
     }, [])
+
+
+    useEffect(() => {
+        if(expoPushToken){
+            assignPushToken({expo_push_token: expoPushToken.data})
+        }
+    }, [expoPushToken])
 
 
     return {

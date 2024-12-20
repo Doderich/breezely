@@ -7,27 +7,27 @@ import { useAuth } from "../useAuth";
 const QUERY_KEY_USER = 'user'
 
 export const useUserInfo = () => {
-    const { authenticatedFetch, logout } = useAuth();
+    const { authenticatedFetch } = useAuth();
     
     return useQuery<User>({
         queryKey: [QUERY_KEY_USER],
         queryFn: async () => {
-            const response = await authenticatedFetch(BACKEND_URL + '/me');
-            if (!response.ok) {
-                if (response.status === 401) {
-                    logout();
-                    throw new Error('Unauthorized');
+            return authenticatedFetch(BACKEND_URL + '/me').then(response => {
+                if (!response.ok) {
+                    console.log('responseStatus ',response.status);
+                    throw new Error('Failed to fetch user data');
                 }
-                throw new Error('Failed to fetch user info');
-            }
-            return response.json().then(data => data.message);
+                return response.json()
+            }).catch((e) => {
+                throw new Error('Failed to fetch user data: ' + e );
+            });
         },
         retry: 1,
-        staleTime: 5 * 60 * 1000, // 5 minutes
+        staleTime: 10
     });
 }
 
-export const useSetExpoPushToken = () => {
+export const useAssignPushToken = () => {
     const { authenticatedFetch } = useAuth();
     
     return useMutation<User, Error,{expo_push_token: string} >({
@@ -36,6 +36,9 @@ export const useSetExpoPushToken = () => {
                 BACKEND_URL + '/pushtoken',
                 {
                     method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                     body: JSON.stringify(data),
                 }
             ).then(response => {

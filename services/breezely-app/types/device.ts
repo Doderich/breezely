@@ -37,7 +37,7 @@ type TelemetryValue = {
     value: string
 }
 
-type Telemetry = Record<string, TelemetryValue>
+type Telemetry = Record<string, TelemetryValue[]>
 type Device =  {
     device: DjangoDevice,
     telemetry:Telemetry
