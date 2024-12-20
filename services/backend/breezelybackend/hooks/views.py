@@ -32,8 +32,15 @@ class ZitadelWebhookView(GenericAPIView):
         user_id = zitadel_helpers.extract_user_id(res)
         print(user_id)
         created_user = User.objects.create(name=first_name + " " + last_name, email=user_email, zitadel_id=user_id)
-        user_serializer = UserSerializer(instance=created_user)
-        return Response(status=status.HTTP_200_OK)
+        ## todo: create user in thingsboard
+        thingsboard_user = thingsboard_helpers.create_user_in_thingsboard(created_user)
+        thingsboard_user_id = thingsboard_user.get("id", None)
+        if not thingsboard_user_id:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        created_user.thingsboard_id = thingsboard_user_id
+        created_user.save()
+        user_ser = UserSerializer(instance=created_user)
+        return Response(data=user_ser.data,status=status.HTTP_200_OK)
     
     def get(self, request):
         # validate user get

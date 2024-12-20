@@ -16,9 +16,8 @@ class User(BaseClass):
     name = models.CharField(max_length=64)
     email = models.EmailField(null=True)
     thingsboard_id = models.CharField(max_length=128) # check thingsboard api for what type this is
-    thingsboard_password = models.CharField(max_length=128, null=True)
     zitadel_id = models.CharField(max_length=128) # check zitadel api for what type this is
-    expo_push_token = models.CharField(max_length=128, null=True)
+    expo_push_token = models.CharField(max_length=128, blank=True, null=True)
     
 class Room(BaseClass):
     name = models.CharField(max_length=64)
@@ -30,3 +29,8 @@ class Device(BaseClass):
     type = models.CharField(choices=DEVICE_TYPES, max_length=7)
     assigned_room = models.ForeignKey(Room, related_name="devices", on_delete=models.SET_NULL, null=True)
     user = models.ForeignKey(User, related_name="devices", on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["device_id"], name="unique_device_id")
+        ]

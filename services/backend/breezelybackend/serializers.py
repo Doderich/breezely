@@ -7,5 +7,5 @@ from .api.models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("name", "email", "thingsboard_id", "thingsboard_password", "zitadel_id", "expo_push_token")
+        fields = ("name", "email", "thingsboard_id", "zitadel_id", "expo_push_token")
         
