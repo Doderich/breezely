@@ -12,7 +12,7 @@ export const useUserInfo = () => {
     return useQuery<User>({
         queryKey: [QUERY_KEY_USER],
         queryFn: async () => {
-            const response = await authenticatedFetch(BACKEND_URL + '/api/me');
+            const response = await authenticatedFetch(BACKEND_URL + '/me');
             if (!response.ok) {
                 if (response.status === 401) {
                     logout();
@@ -27,25 +27,23 @@ export const useUserInfo = () => {
     });
 }
 
-export const useUpdateDevice = () => {
+export const useSetExpoPushToken = () => {
     const { authenticatedFetch } = useAuth();
     
-    return useMutation<Device, Error, Device>({
-        mutationFn: async (device) => {
-            const response = await authenticatedFetch(
-                BACKEND_URL + '/device/' + device.deviceId,
+    return useMutation<User, Error,{expo_push_token: string} >({
+        mutationFn: async (data) => {
+             return authenticatedFetch(
+                BACKEND_URL + '/pushtoken',
                 {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(device),
+                    method: 'POST',
+                    body: JSON.stringify(data),
                 }
-            );
-            if (!response.ok) {
-                throw new Error('Failed to update device');
-            }
-            return response.json();
+            ).then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to update device');
+                }
+                return response.json();
+            });
         },
     });
 }

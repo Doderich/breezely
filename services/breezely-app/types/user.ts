@@ -1,10 +1,11 @@
 type User = {
-    userName: string,
-    fullName: string,
-    id: string,
-    picture: string
+	id: number,
+	name: string,
+	email:string,
+	thingsboard_id: string,
+	zitadel_id: number,
+	expo_push_token: string,
 }
-
 export {
     User
 }
