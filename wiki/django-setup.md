@@ -38,7 +38,7 @@ copy the the values from the .env.template in to a .env file in the same directo
 
 Make sure you ran the main docker compose file first
 
-`docker compose -f "docker-compose-db.yaml" up`
+`docker compose -f "docker-compose-db.yaml" up -d`
 
 
 ### First migration
