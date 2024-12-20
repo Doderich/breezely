@@ -2,7 +2,8 @@ import requests
 from .. import settings
 from tb_rest_client.rest_client_ce import RestClientCE
 from ..api.models import User
-
+import string
+from random import sample, choice
 
 class ThingsboardAPIHelper():
     username = settings.THINGSBOARD_USER_EMAIL
@@ -47,3 +48,20 @@ class ThingsBoardClient():
 
     def close(self):
         self.client.logout()
+
+    def create_user(self, user: User):
+        chars = string.ascii_letters + string.digits
+        length = 16
+        user_password = ''.join(choice(chars) for _ in range(length))
+        user_data = {
+            "email": user.email,
+            "firstName": user.name,
+            "lastName": user.name,
+            "authority": "CUSTOMER",
+            "password": user_password
+        }
+        try:
+            return self.client.customer_controller.save_customer_using_post(user_data)
+        except Exception as e:
+            print(e)
+            return None
