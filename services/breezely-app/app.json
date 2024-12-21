@@ -9,7 +9,8 @@
     "newArchEnabled": false,
     "scheme": "com.breezely.breezely",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.breezely.breezely"
     },
     "android": {
       "versionCode": 1,
@@ -36,7 +37,11 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      ["expo-build-properties", {
+        "android": {
+          "usesCleartextTraffic": true
+      }}]
     ],
     "experiments": {
       "typedRoutes": true

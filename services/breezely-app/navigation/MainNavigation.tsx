@@ -15,8 +15,8 @@ import Favorites from "@/app/favorites";
 import EditDevice from "@/app/editDevice";
 import EditProfile from "@/app/editProfile";
 import EditProfileField from "@/app/editProfileField";
-import Rooms from "@/app/rooms";
-import Room from "@/app/room";
+import Rooms from "@/app/Rooms";
+import Room from "@/app/Room";
 
 
 const Stack = createNativeStackNavigator();

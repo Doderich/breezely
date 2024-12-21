@@ -16,6 +16,16 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./service_user_key/breezely-445320-d3e37ae6947a.json",
+        "track": "internal"
+      },
+      "ios": {
+        "appleId": "john@turtle.com",
+        "ascAppId": "1234567890",
+        "appleTeamId": "AB12XYZ34S"
+      }
+    }
   }
 }
