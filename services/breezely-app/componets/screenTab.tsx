@@ -10,7 +10,7 @@ type Props = {
   onPress: () => void;
 };
 
-const Setting: React.FC<Props> = ({ title, textColor, onPress }) => {
+const ScreenTab: React.FC<Props> = ({ title, textColor, onPress }) => {
   return (
     <Pressable style={[style.setting]} onPress={onPress}>
       <FlowText flowText={title} type={"text5"} color={textColor || "#000"} />
@@ -21,7 +21,7 @@ const Setting: React.FC<Props> = ({ title, textColor, onPress }) => {
   );
 };
 
-export default Setting;
+export default ScreenTab;
 
 const style = StyleSheet.create({
   setting: {

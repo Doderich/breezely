@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ProfileTab from "@/componets/profileTab";
-import Setting from "@/componets/setting";
+import ScreenTab from "@/componets/screenTab";
 import { BACKEND_URL } from "@/config/constants";
 import { useUserInfo } from "@/hooks/queries/useUserInfo";
 import { useAuth } from "@/hooks/useAuth";
@@ -37,14 +37,14 @@ export default function Settings({ navigation }: { navigation: any }) {
         />
       </View>
       <View style={styles.settingContainer}>
-        <Setting
+        <ScreenTab
           title="Rooms"
           onPress={() => {
             navigation.navigate("Rooms");
           }}
         />
-        <Setting title="Language" onPress={() => {}} />
-        <Setting title="Logout" onPress={logoutUser} textColor={"#FF5C00"} />
+        <ScreenTab title="Language" onPress={() => {}} />
+        <ScreenTab title="Logout" onPress={logoutUser} textColor={"#FF5C00"} />
       </View>
     </SafeAreaView>
   );

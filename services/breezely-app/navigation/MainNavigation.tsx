@@ -1,5 +1,5 @@
 import React from "react";
-import { Platform } from "react-native";
+import { Platform, Pressable, View } from "react-native";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -15,9 +15,9 @@ import Favorites from "@/app/favorites";
 import EditDevice from "@/app/editDevice";
 import EditProfile from "@/app/editProfile";
 import EditProfileField from "@/app/editProfileField";
-import Rooms from "@/app/Rooms";
-import Room from "@/app/Room";
-
+import Room from "@/app/room";
+import Rooms from "@/app/rooms";
+import Feather from "@expo/vector-icons/Feather";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -111,11 +111,30 @@ export const Authenticated = () => {
         component={HomeTabs}
         options={{ headerShown: false }}
       />
-      <Stack.Screen name={StackRoutes.DeviceInfo} component={DeviceInfo} options={{ headerBackTitle: "Home" }} />
+      <Stack.Screen
+        name={StackRoutes.DeviceInfo}
+        component={DeviceInfo}
+        options={{ headerBackTitle: "Home" }}
+      />
       <Stack.Screen name={StackRoutes.EditDevice} component={EditDevice} />
-      <Stack.Screen name={StackRoutes.Rooms} component={Rooms} options={{ headerBackTitle: "Settings" }}/>
-      <Stack.Screen name={StackRoutes.Room} component={Room} options={{ headerBackTitle: "Rooms" }}/>
-      <Stack.Screen name={StackRoutes.EditProfile} component={EditProfile} options={{ headerBackTitle: "Settings" }}/>
+      <Stack.Screen
+        name={StackRoutes.Rooms}
+        component={Rooms}
+        options={{ headerBackTitle: "Settings" }}
+      />
+      <Stack.Screen
+        name={StackRoutes.Room}
+        component={Room}
+        options={{
+          headerBackTitle: "Rooms",
+          
+        }}
+      />
+      <Stack.Screen
+        name={StackRoutes.EditProfile}
+        component={EditProfile}
+        options={{ headerBackTitle: "Settings" }}
+      />
       <Stack.Screen
         name={StackRoutes.EditProfileField}
         component={EditProfileField}
