@@ -5,6 +5,7 @@ export type StackRoutesType = {
   EditDevice: string;
   Settings: string;
   Rooms: string;
+  Development: string;
   Room: string;
   Favorites: string;
   EditProfile: string;
@@ -26,6 +27,7 @@ export const StackRoutes: StackRoutesType = {
   Settings: "Settings",
   Rooms: "Rooms",
   Room: "Room",
+  Development: "Development",
   Favorites: "Favorites",
   EditProfile: "EditProfile",
   EditProfileField: "EditProfileField",

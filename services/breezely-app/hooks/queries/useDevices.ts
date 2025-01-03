@@ -9,11 +9,13 @@ const QUERY_KEY_DEVICE = 'device'
 
 export const useDevices = () => {
     const { authenticatedFetch } = useAuth();
-    const notifyOnChangeProps = useFocusNotifyOnChangeProps();
+    // const notifyOnChangeProps = useFocusNotifyOnChangeProps();
     return useQuery<Device[]>({
     queryKey: [QUERY_KEY_DEVICES],
+    refetchOnWindowFocus: true,
+    refetchInterval: 7 * 1000,
     queryFn: () => authenticatedFetch(BACKEND_URL + '/devices').then(res => res.json()),
-    notifyOnChangeProps
+    // notifyOnChangeProps
 })}
 
 export const useDevice = (id:number | undefined, props?: Partial<UseQueryOptions<Device>>) =>{
@@ -21,6 +23,7 @@ export const useDevice = (id:number | undefined, props?: Partial<UseQueryOptions
     return  useQuery<Device>({
     ...props,
     queryKey: [QUERY_KEY_DEVICE, id],
+    staleTime: 7 * 1000,
     queryFn: () => authenticatedFetch(BACKEND_URL + '/devices/' + id).then(res => res.json()),
     enabled: !!id,
 })}
@@ -55,6 +58,7 @@ export const useUpdateDevice = () => {
             body: JSON.stringify(device)
     }).then(res => res.json())},
     onError: (error) => console.log(error),
+    
     onSettled: (_,__,{id}) => {
         queryClient.invalidateQueries({queryKey: [QUERY_KEY_DEVICES]})
         queryClient.removeQueries({queryKey: [QUERY_KEY_DEVICE, id]})

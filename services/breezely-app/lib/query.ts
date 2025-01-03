@@ -24,7 +24,9 @@ export function useFocusNotifyOnChangeProps(notifyOnChangeProps?: NotifyOnChange
         return notifyOnChangeProps()
       }
   
-      return notifyOnChangeProps.current
+      if (notifyOnChangeProps && typeof notifyOnChangeProps === 'object' && 'current' in notifyOnChangeProps) {
+        return notifyOnChangeProps.current
+      }
     }
   }
 

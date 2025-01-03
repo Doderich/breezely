@@ -6,31 +6,31 @@ import AddButton from "@/componets/addButton";
 import { useRooms } from "@/hooks/queries/useRooms";
 import ScreenTab from "@/componets/screenTab";
 
-const rooms = [
-  {
-    id: "1",
-    name: "Living Room",
-    devices: [],
-  },
-  {
-    id: "2",
-    name: "Kitchen",
-    devices: [],
-  },
-  {
-    id: "3",
-    name: "Bedroom",
-    devices: [],
-  },
-  {
-    id: "4",
-    name: "Bathroom",
-    devices: [],
-  },
-];
+// const rooms = [
+//   {
+//     id: "1",
+//     name: "Living Room",
+//     devices: [],
+//   },
+//   {
+//     id: "2",
+//     name: "Kitchen",
+//     devices: [],
+//   },
+//   {
+//     id: "3",
+//     name: "Bedroom",
+//     devices: [],
+//   },
+//   {
+//     id: "4",
+//     name: "Bathroom",
+//     devices: [],
+//   },
+// ];
 
 export default function Rooms({ navigation }: { navigation: any }) {
-  // const { data: rooms, isLoading: isRoomsLoading } = useRooms();
+  const { data: rooms, isLoading: isRoomsLoading } = useRooms();
 
   return (
     <View style={styles.container}>

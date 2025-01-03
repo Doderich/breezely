@@ -2,7 +2,9 @@ import AddButton from "@/componets/addButton";
 import DeviceView from "@/componets/deviceView";
 import FlowText from "@/componets/flowText";
 import { useDevices } from "@/hooks/queries/useDevices";
+import { useRoom } from "@/hooks/queries/useRooms";
 import { StackRoutes } from "@/navigation/Routes";
+import { Room } from "@/types/rooms";
 import Feather from "@expo/vector-icons/Feather";
 import React, { useEffect } from "react";
 import { View, Text, StyleSheet, Button, Pressable, FlatList } from "react-native";
@@ -14,14 +16,13 @@ export default function Room({
   navigation: any;
   route: any;
 }) {
-  const room = route.params?.room;
+  const {data: room, isLoading: isLoadingRoom} = useRoom(parseInt(route.params?.room.id), {initialData: route.params?.room ?? undefined});
   const { data: devices, isLoading: isLoadingDevices } = useDevices();
-
 
   useEffect(() => {
     // Set the title from the passed param
     navigation.setOptions({
-      title: room.name,
+      title: room?.name,
       headerRight: () => (
         <View style={styles.roomActions}>
           <Pressable onPress={() => {}}>
@@ -51,7 +52,7 @@ export default function Room({
       <FlatList
         horizontal={false}
         showsVerticalScrollIndicator={false}
-        data={devices}
+        data={devices ?? []}
         contentContainerStyle={{ paddingVertical: 8 }}
         ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
         renderItem={({ item }) => (

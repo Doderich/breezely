@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import ProfileTab from "@/componets/profileTab";
-import ScreenTab from "@/componets/screenTab";
-import { BACKEND_URL } from "@/config/constants";
 import { useUserInfo } from "@/hooks/queries/useUserInfo";
 import { useAuth } from "@/hooks/useAuth";
-import { View, StyleSheet, SafeAreaView, Alert } from "react-native";
+import { View, StyleSheet, SafeAreaView, Alert, Text } from "react-native";
+import { StackRoutes } from "@/navigation/Routes";
+import ScreenTab from "@/componets/screenTab";
 
-export default function Settings({ navigation }: { navigation: any }) {
+export default function Development({ navigation }: { navigation: any }) {
   const { data: user, isLoading, isError } = useUserInfo();
   const { logout } = useAuth();
 
@@ -42,9 +42,10 @@ export default function Settings({ navigation }: { navigation: any }) {
           onPress={() => {
             navigation.navigate("Rooms");
           }}
-        />
-        <ScreenTab title="Language" onPress={() => {}} />
-          <ScreenTab title="Development" onPress={() => {navigation.navigate("Development");}} />
+      />
+        {/* <Setting title="Language" onPress={()=> {}} /> */}
+        {/* <Setting title="Development" onPress={() => {navigation.navigate("Development");}} /> */}
+        <Text>Development</Text>
         <ScreenTab title="Logout" onPress={logoutUser} textColor={"#FF5C00"} />
       </View>
     </SafeAreaView>

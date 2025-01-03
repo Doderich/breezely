@@ -1,6 +1,6 @@
 import { BACKEND_URL } from "@/config/constants";
 import { Room } from "@/types/rooms";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { QueryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
 
 const QUERY_KEY_ROOMS = 'rooms'
@@ -14,9 +14,10 @@ export const useRooms = () => {
     })  
 } 
 
-export const useRoom = (id:number | undefined) =>{ 
+export const useRoom = (id:number | undefined, queryOptions?: Partial<QueryOptions<Room, Error>>) =>{ 
     const { authenticatedFetch } = useAuth();
-    return useQuery<Room[]>({
+    return useQuery<Room, Error>({
+    ...queryOptions,
     queryKey: [QUERY_KEY_ROOM, id],
     queryFn: () => authenticatedFetch(BACKEND_URL + '/rooms/' + id).then(res => res.json()),
     enabled: !!id

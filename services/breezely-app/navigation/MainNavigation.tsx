@@ -16,8 +16,8 @@ import EditDevice from "@/app/editDevice";
 import EditProfile from "@/app/editProfile";
 import EditProfileField from "@/app/editProfileField";
 import Room from "@/app/room";
+import Development from "@/app/development";
 import Rooms from "@/app/rooms";
-import Feather from "@expo/vector-icons/Feather";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -135,6 +135,7 @@ export const Authenticated = () => {
         component={EditProfile}
         options={{ headerBackTitle: "Settings" }}
       />
+      <Stack.Screen name={StackRoutes.Development} component={Development} options={{ headerBackTitle: "Settings" }}/>
       <Stack.Screen
         name={StackRoutes.EditProfileField}
         component={EditProfileField}
