@@ -23,7 +23,6 @@ export default function RootLayout() {
       focusManager.setFocused(status === 'active')
     }
   }
-  
   useEffect(() => {
     const subscription = AppState.addEventListener('change', onAppStateChange)
   
