@@ -2,12 +2,14 @@ import AddButton from "@/componets/addButton";
 import DeviceView from "@/componets/deviceView";
 import FlowText from "@/componets/flowText";
 import { useDevices } from "@/hooks/queries/useDevices";
-import { useRoom } from "@/hooks/queries/useRooms";
+import { useDeleteRoom, useRoom } from "@/hooks/queries/useRooms";
 import { StackRoutes } from "@/navigation/Routes";
-import { Room } from "@/types/rooms";
 import Feather from "@expo/vector-icons/Feather";
+import { NavigationState } from "@react-navigation/native";
 import React, { useEffect } from "react";
 import { View, Text, StyleSheet, Button, Pressable, FlatList } from "react-native";
+
+
 
 export default function Room({
   navigation,
@@ -17,18 +19,25 @@ export default function Room({
   route: any;
 }) {
   const {data: room, isLoading: isLoadingRoom} = useRoom(parseInt(route.params?.room.id), {initialData: route.params?.room ?? undefined});
-  const { data: devices, isLoading: isLoadingDevices } = useDevices();
-
+  const {mutate: deleteRoom, isError} = useDeleteRoom();
   useEffect(() => {
     // Set the title from the passed param
     navigation.setOptions({
       title: room?.name,
       headerRight: () => (
         <View style={styles.roomActions}>
-          <Pressable onPress={() => {}}>
+          <Pressable onPressIn={() => {
+            console.log("Delete room");
+            if(!room) return;
+            deleteRoom(parseInt(room.id));
+            navigation.navigate(StackRoutes.Rooms);
+          }}>
             <Feather name="trash-2" size={24} color="red" />
           </Pressable>
-          <Pressable onPress={() => {}}>
+          <Pressable onPressIn={() => {
+            console.log("Edit room");
+            navigation.navigate(StackRoutes.EditRoom, {room});
+          }}>
             <Feather name="edit" size={24} color="black" />
           </Pressable>
         </View>
@@ -39,20 +48,10 @@ export default function Room({
   console.log(room);
   return (
     <View style={styles.container}>
-      <View style={styles.addDeviceContainer}>
-        <FlowText flowText={"Devices"} type="text3" />
-        <AddButton
-          onPress={() => {
-            navigation.navigate(StackRoutes.EditDevice, {
-              title: "Add Device",
-            });
-          }}
-        />
-      </View>
       <FlatList
         horizontal={false}
         showsVerticalScrollIndicator={false}
-        data={devices ?? []}
+        data={room?.devices ?? []}
         contentContainerStyle={{ paddingVertical: 8 }}
         ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
         renderItem={({ item }) => (
@@ -79,12 +78,5 @@ const styles = StyleSheet.create({
   roomActions: {
     flexDirection: "row",
     columnGap: 12,
-  },
-  addDeviceContainer: {
-    marginHorizontal: 20,
-    marginBottom: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
   },
 });

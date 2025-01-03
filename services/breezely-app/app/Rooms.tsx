@@ -5,6 +5,7 @@ import FlowText from "@/componets/flowText";
 import AddButton from "@/componets/addButton";
 import { useRooms } from "@/hooks/queries/useRooms";
 import ScreenTab from "@/componets/screenTab";
+import { StackRoutes } from "@/navigation/Routes";
 
 // const rooms = [
 //   {
@@ -41,7 +42,9 @@ export default function Rooms({ navigation }: { navigation: any }) {
           type={"text5"}
           color={"#888888"}
         />
-        <AddButton onPress={() => {}} />
+        <AddButton onPress={() => {
+          navigation.navigate(StackRoutes.EditRoom);
+        }} />
       </View>
       <View style={styles.roomsContainer}>
         <FlatList

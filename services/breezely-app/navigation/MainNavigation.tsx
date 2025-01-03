@@ -18,6 +18,7 @@ import EditProfileField from "@/app/editProfileField";
 import Room from "@/app/room";
 import Development from "@/app/development";
 import Rooms from "@/app/rooms";
+import EditRoom from "@/app/editRoom";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -121,6 +122,11 @@ export const Authenticated = () => {
         name={StackRoutes.Rooms}
         component={Rooms}
         options={{ headerBackTitle: "Settings" }}
+      />
+      <Stack.Screen
+        name={StackRoutes.EditRoom}
+        component={EditRoom}
+        options={{ headerBackTitle: "Settings", }}
       />
       <Stack.Screen
         name={StackRoutes.Room}

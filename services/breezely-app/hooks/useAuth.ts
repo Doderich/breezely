@@ -193,6 +193,7 @@ export const useAuth = () => {
     const options = init ?? {};
     if(!accessToken) throw new Error('No access token');
     if (!options.headers) options.headers = {};
+    // (options.headers as Record<string, string>)['Content-Type'] = 'application/json'; // Add this line
     (options.headers as Record<string, string>)['Authorization'] = `Bearer ${accessToken}`;
     
     const response = await fetch(input, options);

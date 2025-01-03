@@ -6,15 +6,17 @@ type Props = {
   info: string;
   data: string;
   onChangeText?: (text: string) => void;
+  onBlur?: (text: any) => void;
 };
 
-const InfoLabelEdit: React.FC<Props> = ({ info, data, onChangeText }) => {
+const InfoLabelEdit: React.FC<Props> = ({ info, data, onChangeText, onBlur }) => {
   return (
     <View style={style.container}>
       <FlowText type={"text7"} flowText={info} color={"#868686"} />
       <View style={style.dataContainer}>
         <TextInput
           value={data}
+          onBlur={onBlur}
           onChangeText={onChangeText}
           style={style.input}
           placeholder={"................"}
