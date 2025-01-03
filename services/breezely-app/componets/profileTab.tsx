@@ -30,7 +30,7 @@ const ProfileTab: React.FC<Props> = ({
           <FlowText flowText={email} type={"text3"} color={"#fff"} />
       </View>
 
-      <Pressable
+      {/* <Pressable
         style={style.button}
         onPress={() => {
           onPress();
@@ -43,7 +43,7 @@ const ProfileTab: React.FC<Props> = ({
           styleProps={style.buttonText}
         />
         <Feather name="edit" size={24} color="white" />
-      </Pressable>
+      </Pressable> */}
     </View>
   );
 };

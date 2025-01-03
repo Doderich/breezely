@@ -28,7 +28,7 @@ type DjangoDevice = {
     id: number,
     name: string,
     type: DeviceTypes,
-    assigned_room: number,
+    assigned_room: string,
     user: number
 }
 

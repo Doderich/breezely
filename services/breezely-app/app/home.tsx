@@ -115,6 +115,8 @@ export default function Home({ navigation }: { navigation: any }) {
   const { data: devices, isLoading: isLoadingDevices } = useDevices();
   const { data: rooms, isLoading: isRoomsLoading } = useRooms();
   const { mutate: assignPushToken } = useAssignPushToken();
+
+  const [filterdRooms, setFilterdRooms] = React.useState(rooms ?? []);
   useEffect(() => {
     if (expoPushToken && user && user.expo_push_token !== expoPushToken.data) {
       assignPushToken({ expo_push_token: expoPushToken.data });
@@ -136,10 +138,16 @@ export default function Home({ navigation }: { navigation: any }) {
           ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
           renderItem={({ item }) => (
             <FilterTab
-              isActive={false}
+              isActive={filterdRooms.length >0 && !!filterdRooms.find(room => room.id === item.id)}
               title={item.name}
               tabId={item.id}
-              onPress={() => {}}
+              onPress={() => {
+                if(filterdRooms.find(room => room.id === item.id)){
+                  setFilterdRooms(filterdRooms.filter(room => room.id !== item.id));
+                } else {
+                  setFilterdRooms([...filterdRooms, item]);
+                }
+              }}
             />
           )}
         />
@@ -156,7 +164,10 @@ export default function Home({ navigation }: { navigation: any }) {
         <FlatList
           horizontal={false}
           showsVerticalScrollIndicator={false}
-          data={devices}
+          data={devices?.filter((device) => {
+            if(filterdRooms.length === 0) return true;
+            if(filterdRooms.find(room => room.id === device.device.assigned_room)) return true;
+          })}
           contentContainerStyle={{ paddingVertical: 8 }}
           ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
           renderItem={({ item }) => (

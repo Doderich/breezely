@@ -1,3 +1,4 @@
+import { useUserInfo } from "@/hooks/queries/useUserInfo";
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
@@ -5,7 +6,7 @@ import { View, Text, StyleSheet } from "react-native";
 export default function EditProfile() {
   return (
     <View style={styles.container}>
-      <Text>EditProfile</Text>
+      
     </View>
   );
 }
