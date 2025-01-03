@@ -26,7 +26,7 @@ const Tab = createBottomTabNavigator();
 export const NonAuthenticated = () => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name={StackRoutes.Login} component={Login} />
+      <Stack.Screen name={StackRoutes.Login} options={{headerShown: false}} component={Login} />
     </Stack.Navigator>
   );
 };
