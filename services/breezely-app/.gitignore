@@ -38,3 +38,4 @@ yarn-error.*
 app-example
 service_user_key/*
 *.aab
+*.apk

@@ -10,9 +10,15 @@
     "scheme": "com.breezely.breezely",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.breezely.breezely"
+      "bundleIdentifier": "com.breezely.breezely",
+      "infoPlist": {
+      "NSAppTransportSecurity": { 
+        "NSAllowsArbitraryLoads": true 
+      }
+    }
     },
     "android": {
+      "usesCleartextTraffic": true,
       "versionCode": 1,
       "googleServicesFile": "./android/app/google-services.json",
       "adaptiveIcon": {

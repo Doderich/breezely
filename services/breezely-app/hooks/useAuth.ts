@@ -207,6 +207,7 @@ export const useAuth = () => {
     if (!accessToken) throw new Error('No access token');
     if (!options.headers) options.headers = {};
     (options.headers as Record<string, string>)['Authorization'] = `Bearer ${accessToken}`;
+    (options.headers as Record<string, string>)['ngrok-skip-browser-warning'] = `true`;
 
     const response = await fetch(input, options);
     if (response.status === 401) {
