@@ -7,6 +7,7 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import RoomTab from "./roomTab";
 import DeviceInfoLabel from "@/componets/deviceInfoLabel";
+import { useRooms } from "@/hooks/queries/useRooms";
 
 type Props = {
   device: Device;
@@ -17,6 +18,7 @@ const dataColor = "#75A7F7";
 const iconColor = "#9A9B9E";
 
 const DeviceView: React.FC<Props> = ({ device, onPress = () => {} }) => {
+  const {data: rooms } = useRooms();
   return (
     <Pressable
       style={style.device}
@@ -60,7 +62,7 @@ const DeviceView: React.FC<Props> = ({ device, onPress = () => {} }) => {
             />
           </View>
         </View>
-        <RoomTab room={"Room 1"} />
+        <RoomTab room={rooms?.find(room => room.id === device.device.assigned_room)?.name ?? "No Room"} />
       </View>
     </Pressable>
   );

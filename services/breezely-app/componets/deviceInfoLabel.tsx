@@ -17,7 +17,7 @@ const dataColor = "#75A7F7";
 const deviceInfoLabel: React.FC<Props> = ({ device }) => {
   const deviceInfoIcon = () => {
     switch (device.device.type) {
-      case DeviceTypes.Window:
+      case "Window":
         return (
           <MaterialCommunityIcons
             name={
@@ -29,7 +29,7 @@ const deviceInfoLabel: React.FC<Props> = ({ device }) => {
             color={dataColor}
           />
         );
-      case DeviceTypes.Door:
+      case "Door":
         return (
           <FontAwesome5
             name={device.telemetry.window_status[0].value ? "door-open" : "door-closed"}

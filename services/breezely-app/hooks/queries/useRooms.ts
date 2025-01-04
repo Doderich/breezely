@@ -1,4 +1,4 @@
-import { BACKEND_URL } from "@/config/constants";
+import { BACKEND_URL, getBackendUrl } from "@/config/constants";
 import { Room } from "@/types/rooms";
 import { QueryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
@@ -10,7 +10,9 @@ export const useRooms = () => {
     const { authenticatedFetch } = useAuth();
     return useQuery<Room[]>({
         queryKey: [QUERY_KEY_ROOMS],
-        queryFn: () => authenticatedFetch(BACKEND_URL + '/rooms').then(res => res.json())
+        queryFn: async () =>{
+            const backendUrl = await getBackendUrl();
+            return authenticatedFetch(backendUrl + '/rooms').then(res => res.json())} 
     })  
 } 
 
@@ -19,7 +21,9 @@ export const useRoom = (id:number | undefined, queryOptions?: Partial<QueryOptio
     return useQuery<Room, Error>({
     ...queryOptions,
     queryKey: [QUERY_KEY_ROOM, id],
-    queryFn: () => authenticatedFetch(BACKEND_URL + '/rooms/' + id).then(res => res.json()),
+    queryFn: async() => {
+        const backendUrl = await getBackendUrl();
+        return authenticatedFetch(backendUrl + '/rooms/' + id).then(res => res.json())},
     enabled: !!id
 })}
 
@@ -27,13 +31,15 @@ export const useCreateRoom = () => {
     const { authenticatedFetch } = useAuth();
     const queryClient = useQueryClient();
     return useMutation<Room, Error, {name: string, devices: number[]}>({
-    mutationFn: (data) => authenticatedFetch(BACKEND_URL+ '/rooms', {
+    mutationFn: async (data) =>{
+        const backendUrl = await getBackendUrl();
+        return  authenticatedFetch(backendUrl+ '/rooms', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)
-    }).then(res => res.json()),
+    }).then(res => res.json())},
     onError: (error) => {
         console.log(error)
     },
@@ -51,13 +57,15 @@ export const useUpdateRoom = () => {
     const { authenticatedFetch } = useAuth();
     const queryClient = useQueryClient();
     return useMutation<Room, Error, {id: string, name:string, devices: number[]}>({
-    mutationFn: (room) => authenticatedFetch(BACKEND_URL+ '/rooms/' + room.id, {
+    mutationFn: async (room) => {
+        const backendUrl = await getBackendUrl();
+        return authenticatedFetch(backendUrl+ '/rooms/' + room.id, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(room)
-    }).then(res => res.json()),
+    }).then(res => res.json())},
     onSettled: (room) => {
         queryClient.invalidateQueries({queryKey: [QUERY_KEY_ROOMS]})
         queryClient.invalidateQueries({queryKey: [QUERY_KEY_ROOM, room?.id]})
@@ -68,9 +76,11 @@ export const useDeleteRoom = () =>{
     const { authenticatedFetch } = useAuth();
     const queryClient = useQueryClient();
     return  useMutation<number, Error, number>({
-    mutationFn: (id) => authenticatedFetch(BACKEND_URL+ '/rooms/' + id, {
+    mutationFn: async(id) => {
+        const backendUrl = await getBackendUrl();
+        return authenticatedFetch(backendUrl+ '/rooms/' + id, {
         method: 'DELETE',
-    }).then(res => res.status),
+    }).then(res => res.status)},
     onSettled: (id) => {
         queryClient.invalidateQueries({queryKey: [QUERY_KEY_ROOMS]})
         queryClient.removeQueries({queryKey: [QUERY_KEY_ROOM, id]})

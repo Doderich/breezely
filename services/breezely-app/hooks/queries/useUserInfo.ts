@@ -1,4 +1,4 @@
-import { BACKEND_URL } from "@/config/constants";
+import { BACKEND_URL, getBackendUrl } from "@/config/constants";
 import { Device } from "@/types/device";
 import { User } from "@/types/user";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -12,7 +12,8 @@ export const useUserInfo = () => {
     return useQuery<User>({
         queryKey: [QUERY_KEY_USER],
         queryFn: async () => {
-            return authenticatedFetch(BACKEND_URL + '/me').then(response => {
+            const backendUrl = await getBackendUrl()
+            return authenticatedFetch(backendUrl + '/me').then(response => {
                 if (!response.ok) {
                     console.log('responseStatus ',response.status);
                     throw new Error('Failed to fetch user data');
@@ -32,8 +33,9 @@ export const useAssignPushToken = () => {
     
     return useMutation<User, Error,{expo_push_token: string} >({
         mutationFn: async (data) => {
-             return authenticatedFetch(
-                BACKEND_URL + '/pushtoken',
+            const backendUrl = await getBackendUrl();
+            return authenticatedFetch(
+                backendUrl + '/pushtoken',
                 {
                     method: 'POST',
                     headers: {

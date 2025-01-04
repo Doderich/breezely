@@ -1,10 +1,5 @@
 
-enum DeviceTypes {
-    Window,
-    Door
-}
-
-// {
+type DeviceTypes = 'Window' | 'Door'
 //     "device": {
 //         "device_id": "4d6138b0-bb11-11ef-9451-89906175e28b",
 //         "id": 2,
