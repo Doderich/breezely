@@ -40,9 +40,15 @@ class CustomResourceProtector(ResourceProtector):
 
 
 def return_error_response(error):
+    # Prepare the JSON body
     body = dict(error.get_body())
-    resp = JsonResponse(body, status=error.status_code)
-    headers = error.get_headers()
-    for k, v in headers:
+    
+    # Create a JsonResponse object
+    resp = JsonResponse(body, status=error.status_code, safe=False)
+    
+    # Set headers on the response
+    headers = dict(error.get_headers())
+    for k, v in headers.items():
         resp[k] = v
+    
     return resp
