@@ -9,15 +9,23 @@
     "newArchEnabled": false,
     "scheme": "com.breezely.breezely",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.breezely.breezely",
+      "infoPlist": {
+      "NSAppTransportSecurity": { 
+        "NSAllowsArbitraryLoads": true 
+      }
+    }
     },
     "android": {
+      "usesCleartextTraffic": true,
       "versionCode": 1,
       "googleServicesFile": "./android/app/google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.breezely.breezely"
     },
     "web": {
       "bundler": "metro",
@@ -35,7 +43,11 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      ["expo-build-properties", {
+        "android": {
+          "usesCleartextTraffic": true
+      }}]
     ],
     "experiments": {
       "typedRoutes": true

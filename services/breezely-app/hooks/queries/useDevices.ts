@@ -1,37 +1,93 @@
-import { BACKEND_URL } from "@/config/constants";
+import { BACKEND_URL, getBackendUrl } from "@/config/constants";
 import { Device } from "@/types/device";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
+import { useAuth } from "../useAuth";
 
 const QUERY_KEY_DEVICES = 'devices'
 const QUERY_KEY_DEVICE = 'device'
 
-export const useDevices = () => useQuery<Device[]>({
+export const useDevices = () => {
+    const { authenticatedFetch } = useAuth();
+    // const notifyOnChangeProps = useFocusNotifyOnChangeProps();
+    return useQuery<Device[]>({
     queryKey: [QUERY_KEY_DEVICES],
-    queryFn: () => fetch(BACKEND_URL + '/device').then(res => res.json())
-})
+    refetchOnWindowFocus: true,
+    refetchInterval: 7 * 1000,
+    queryFn: async () => {
+        const backendUrl = await getBackendUrl();
+        return authenticatedFetch(backendUrl + '/devices').then(res => res.json())
+    },
+    // notifyOnChangeProps
+})}
 
-export const useDevice = (id:number | undefined) => useQuery<Device[]>({
+export const useDevice = (id:number | undefined, props?: Partial<UseQueryOptions<Device>>) =>{
+    const { authenticatedFetch } = useAuth();
+    return  useQuery<Device>({
+    ...props,
     queryKey: [QUERY_KEY_DEVICE, id],
-    queryFn: () => fetch(BACKEND_URL + '/device/' + id).then(res => res.json()),
-    enabled: !!id
-})
+    staleTime: 7 * 1000,
+    queryFn: async () => {
+        const backendUrl = await getBackendUrl();
+        return authenticatedFetch(backendUrl + '/devices/' + id).then(res => res.json())},
+    enabled: !!id,
+})}
 
-export const useCreateDevice = () => useMutation<{name: string}, Error, Device>({
-    mutationFn: ({name}) => fetch(BACKEND_URL+ '/device', {
+export const useCreateDevice = () =>{
+    const { authenticatedFetch } = useAuth();
+    const queryClient = useQueryClient();
+    return useMutation<Device, Error, Omit<Device['device'], 'user' | 'id' | 'assigned_room'>>({
+    mutationFn: async (data) => {
+        const backendUrl = await getBackendUrl();
+        return authenticatedFetch(backendUrl+ '/devices', {
         method: 'POST',
-        body: JSON.stringify({name})
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
     }).then(res => res.json())
-})
+},
+    throwOnError: true,
+    onError: (error) => console.log(error),
+    onSettled: () => queryClient.invalidateQueries({queryKey: [QUERY_KEY_DEVICES]})
+})}
 
-export const useUpdateDevice = () => useMutation<Device, Error, Device>({
-    mutationFn: (device) => fetch(BACKEND_URL+ '/device/' + device.deviceId, {
-        method: 'PUT',
-        body: JSON.stringify(device)
-    }).then(res => res.json())
-}) 
+export const useUpdateDevice = () => {
+    const { authenticatedFetch } = useAuth();
+    const queryClient = useQueryClient();
+    return useMutation<Device, Error, Omit<Device['device'], 'user' | 'assigned_room'>>({
+    mutationFn: async (device) => {
+        console.log("device", device);
+        const backendUrl = await getBackendUrl();
+        return authenticatedFetch(backendUrl+ '/devices/' + device.id, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(device)
+    }).then(res => res.json())},
+    onError: (error) => console.log(error),
+    
+    onSettled: (_,__,{id}) => {
+        queryClient.invalidateQueries({queryKey: [QUERY_KEY_DEVICES]})
+        queryClient.removeQueries({queryKey: [QUERY_KEY_DEVICE, id]})
+    }
+    
+}) }
 
-export const useDeleteDevice = () => useMutation<number, Error, Device>({
-    mutationFn: (id) => fetch(BACKEND_URL+ '/device/' + id, {
+export const useDeleteDevice = () => {
+    const { authenticatedFetch } = useAuth();
+    const queryClient = useQueryClient();
+    return useMutation<number, Error, number>({
+    mutationFn: async (id) =>{
+        const backendUrl = await getBackendUrl();
+        return authenticatedFetch(backendUrl+ '/devices/' + id, {
         method: 'DELETE',
-    }).then(res => res.json())
-}) 
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    }).then(res => res.status)},
+    onSettled: (id) => {
+        queryClient.invalidateQueries({queryKey: [QUERY_KEY_DEVICES]})
+        queryClient.removeQueries({queryKey: [QUERY_KEY_DEVICE, id]})
+    }
+}) }
