@@ -31,13 +31,13 @@ const DeviceView: React.FC<Props> = ({ device, onPress = () => {} }) => {
         <View style={style.dataItemsWrapper}>
           <View style={style.dataItemContainer}>
             <FontAwesome5
-              name={device.telemetry.window_status[0].value ? "unlock" : "lock"}
+              name={device.telemetry.window_status[0].value === "true" ? "unlock" : "lock"}
               size={22}
               color={iconColor}
             />
             <FlowText
               type={"text5"}
-              flowText={device.telemetry.window_status[0].value ? "open" : "closed"}
+              flowText={device.telemetry.window_status[0].value === "true" ? "open" : "closed"}
               color={dataColor}
             />
           </View>

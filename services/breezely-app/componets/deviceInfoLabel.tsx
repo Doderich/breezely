@@ -21,7 +21,7 @@ const deviceInfoLabel: React.FC<Props> = ({ device }) => {
         return (
           <MaterialCommunityIcons
             name={
-              device.telemetry.window_status[0].value
+              device.telemetry.window_status[0].value === "true"
                 ? "window-open-variant"
                 : "window-closed-variant"
             }
@@ -32,7 +32,7 @@ const deviceInfoLabel: React.FC<Props> = ({ device }) => {
       case "Door":
         return (
           <FontAwesome5
-            name={device.telemetry.window_status[0].value ? "door-open" : "door-closed"}
+            name={device.telemetry.window_status[0].value === "true" ? "door-open" : "door-closed"}
             size={24}
             color={dataColor}
           />
