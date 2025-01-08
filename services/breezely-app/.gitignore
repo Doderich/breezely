@@ -36,3 +36,6 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+service_user_key/*
+*.aab
+*.apk

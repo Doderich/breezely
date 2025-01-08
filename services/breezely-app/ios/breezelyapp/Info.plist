@@ -28,6 +28,7 @@
         <key>CFBundleURLSchemes</key>
         <array>
           <string>com.breezely.breezely</string>
+          <string>com.breezely.breezely</string>
         </array>
       </dict>
     </array>

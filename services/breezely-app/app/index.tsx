@@ -1,100 +1,50 @@
-import { Button, Text, View, StyleSheet } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
-import { useAuth } from '@/hooks/useAuth';
-import { usePushnotification } from '@/hooks/usePushnotifications';
-
-
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
-import { useReactQueryDevTools } from '@dev-plugins/react-query';
-import { ReactQueryExample } from '@/componets/reactquery-example';
-
+import { Button, Text, View, StyleSheet, Image } from "react-native";
+import * as WebBrowser from "expo-web-browser";
+import { useAuth } from "@/hooks/useAuth";
+import { usePushnotification } from "@/hooks/usePushnotifications";
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function App() {
-  const queryClient = new QueryClient();
-  useReactQueryDevTools(queryClient);
-
-  const {expoPushToken, notification} = usePushnotification()
-
-
-  const data = JSON.stringify(notification, undefined, 2)
 
   const {
-    request,user, setCodeUsed, promptAsync, logout, setAuthError, authError
-  } = useAuth()
+    setCodeUsed,
+    promptAsync,
+  } = useAuth();
 
   return (
-    <QueryClientProvider client={queryClient}>
-    <View style={styles.container}>
-      <View style={styles.row}>
-
-        <View>
-          <Button
-            disabled={(!request) || !!user}
-            title="Log in"
-            onPress={() => {
-              setCodeUsed(false)
-              promptAsync();
-            }}
-          />
-        </View>
-
-        <Button
-          disabled={!user}
-          title="Log out"
-          onPress={logout}
+    
+      <View style={styles.container}>
+        <Image
+          style={styles.logo}
+          source={ require('../assets/images/BreezelyLogo.png')}
         />
+        <View style={[{ width: "90%", margin: 10 }]}>
         <Button
-          disabled={!authError}
-          title="Clear"
-          onPress={() => setAuthError(null)}
+          title="Log in"
+          onPress={() => {
+            setCodeUsed(false);
+            promptAsync();
+          }}
         />
+        </View> 
+
       </View>
-
-      {authError ?
-        <>
-          <Text style={[styles.heading]}>Auth Error:</Text>
-          <Text style={[styles.text, styles.error]}>{authError}</Text>
-        </>
-        : null}
-      {/* <Text style={[styles.heading]}>Redirect Uri:</Text>
-      <Text style={[styles.text]}>{redirectUri}</Text> */}
-      <Text style={[styles.heading]}>Token Data:</Text>
-      {user ? <Text style={[styles.text]}>{JSON.stringify(user.decoded)}</Text> : null}
-
-        <Text>Token: {expoPushToken?.data}</Text>
-        <Text>{data}</Text>
-        <ReactQueryExample />
-
-    </View>
-    </QueryClientProvider>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'stretch',
-    justifyContent: "flex-start",
-    width: "100%",
-    padding: 5
-  },
-  row: {
-    flexDirection: "row",
+    backgroundColor: "#fff",
     alignItems: "center",
-    justifyContent: "space-evenly",
-  },
-  heading: {
+    justifyContent: "center",
+    width: "100%",
     padding: 5,
-    fontSize: 24,
   },
-  text: {
-    padding: 5,
-    fontSize: 14,
+  logo: {
+    width: 300,
+    height: 300,
   },
-  error: {
-    color: 'red'
-  }
+
 });
