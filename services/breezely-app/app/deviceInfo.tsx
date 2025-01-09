@@ -5,7 +5,7 @@ import InfoLabel from "@/componets/infoLabel";
 import DeviceInfoLabel from "@/componets/deviceInfoLabel";
 import Feather from "@expo/vector-icons/Feather";
 import FlowText from "@/componets/flowText";
-import { StackRoutes } from "@/navigation/Routes";
+import { StackRoutes, TabRoutes } from "@/navigation/Routes";
 import { Device, DeviceTypes } from "@/types/device";
 import { useDeleteDevice, useDevice } from "@/hooks/queries/useDevices";
 
@@ -31,7 +31,7 @@ export default function DeviceInfo({
         onPress: async () => {
           if(!device) return; 
           deleteDevice(device?.device.id);
-          navigation.navigate(StackRoutes.Home);
+          navigation.navigate(TabRoutes.App);
         },
       },
     ]);

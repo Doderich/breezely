@@ -19,6 +19,7 @@ import Room from "@/app/room";
 import Development from "@/app/development";
 import Rooms from "@/app/rooms";
 import EditRoom from "@/app/editRoom";
+import QrScan from "@/app/qrScan";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -116,6 +117,11 @@ export const Authenticated = () => {
         name={StackRoutes.DeviceInfo}
         component={DeviceInfo}
         options={{ headerBackTitle: "Home" }}
+      />
+      <Stack.Screen
+        name={StackRoutes.QrScan}
+        component={QrScan}
+        options={{ headerShown: false }}
       />
       <Stack.Screen name={StackRoutes.EditDevice} component={EditDevice} />
       <Stack.Screen

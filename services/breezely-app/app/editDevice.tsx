@@ -1,20 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { RouteProp } from "@react-navigation/native";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import FlowText from "@/componets/flowText";
 import InfoLabelEdit from "@/componets/infoLabelEdit";
 import { Device, DeviceTypes } from "@/types/device";
 import SaveButton from "@/componets/saveButton";
 import { TabRoutes } from "@/navigation/Routes";
-import { useCreateDevice, useDevice, useUpdateDevice } from "@/hooks/queries/useDevices";
+import {
+  useCreateDevice,
+  useDevice,
+  useUpdateDevice,
+} from "@/hooks/queries/useDevices";
 import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z, } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { StackRoutes } from "@/navigation/Routes";
+import { useCameraPermissions } from "expo-camera";
+
 const schema = z.object({
-	deviceId: z.string().nonempty(),
-  	deviceName: z.string().nonempty(),
-  	deviceType: z.enum(['Window', 'Door']),
-})
+  deviceId: z.string().nonempty(),
+  deviceName: z.string().nonempty(),
+  deviceType: z.enum(["Window", "Door"]),
+});
 
 export default function EditDevice({
   route,
@@ -23,58 +31,94 @@ export default function EditDevice({
   route: RouteProp<any, any>;
   navigation: any;
 }) {
+  const [permission, requestPermission] = useCameraPermissions();
+
+  const isPermissionGranted = Boolean(permission?.granted);
+
   const routeDevice = route.params?.device?.device;
   const title = route.params?.title;
-  const {data: device} = useDevice(routeDevice?.id, {initialData: routeDevice ?? undefined});
-  
-  const {mutate: updateDevice} = useUpdateDevice();
-  const {mutate: createDevice} = useCreateDevice();
+  const qrCodeDeviceId = route.params?.qrCodeDeviceId;
+  const { data: device } = useDevice(routeDevice?.id, {
+    initialData: routeDevice ?? undefined,
+  });
+
+  const { mutate: updateDevice } = useUpdateDevice();
+  const { mutate: createDevice } = useCreateDevice();
 
   const form = useForm<z.infer<typeof schema>>({
-	resolver: zodResolver(schema),
+    resolver: zodResolver(schema),
     defaultValues: {
-      deviceId: routeDevice?.device_id ?? "",
+      deviceId: qrCodeDeviceId ?? routeDevice?.device_id ?? "",
       deviceName: routeDevice?.name ?? "",
       deviceType: routeDevice?.type ?? "",
-    }
-  })
+    },
+  });
 
   const { handleSubmit } = form;
 
   useEffect(() => {
-    navigation.setOptions({ title: title });
+    navigation.setOptions({
+      title: title,
+      
+    });
   }, [navigation, route]);
 
-  const onSubmit =({deviceId, deviceName, deviceType}: z.infer<typeof schema>) => {
-    if(device?.device.id) {
-      updateDevice({id: device.device.id, device_id: deviceId, name: deviceName, type: deviceType});
+  const onSubmit = ({
+    deviceId,
+    deviceName,
+    deviceType,
+  }: z.infer<typeof schema>) => {
+    if (device?.device.id) {
+      updateDevice({
+        id: device.device.id,
+        device_id: deviceId,
+        name: deviceName,
+        type: deviceType,
+      });
     } else {
-      createDevice({device_id: deviceId, name: deviceName, type: deviceType});
+      createDevice({ device_id: deviceId, name: deviceName, type: deviceType });
     }
     navigation.navigate(TabRoutes.App);
-  }
+  };
 
   return (
     <View style={styles.container}>
       <FlowText flowText={"Info"} type="text3" styleProps={styles.infoText} />
-
       <View style={styles.deviceInfoDetails}>
-        <Controller 
+        {/* <Pressable
+          style={styles.qrCodeButton}
+          onPressIn={() => {
+            requestPermission();
+
+            if (isPermissionGranted) {
+              console.log("Scan QR Code");
+              navigation.navigate(StackRoutes.QrScan);
+            } else {
+              requestPermission();
+            }
+          }}
+        >
+          <FontAwesome name="qrcode" size={30} color="black" />
+        </Pressable> */}
+        <Controller
           control={form.control}
           name="deviceId"
-          render={({field: {onChange, value}}) => (
+          render={({ field: { onChange, value } }) => (
             <InfoLabelEdit
               info="Device ID"
               data={value}
               onChangeText={onChange}
+              onNavigate={() => {
+                navigation.navigate(StackRoutes.QrScan);
+              }}
             />
           )}
         />
 
-        <Controller 
+        <Controller
           control={form.control}
           name="deviceName"
-          render={({field: {onChange, value}}) => (
+          render={({ field: { onChange, value } }) => (
             <InfoLabelEdit
               info="Device Name"
               data={value}
@@ -85,7 +129,7 @@ export default function EditDevice({
         <Controller
           control={form.control}
           name="deviceType"
-          render={({field: {onChange, value}}) => (
+          render={({ field: { onChange, value } }) => (
             <InfoLabelEdit
               info="Device Type"
               data={value}
@@ -95,9 +139,7 @@ export default function EditDevice({
         />
       </View>
       <View style={styles.saveButtonContainer}>
-        <SaveButton
-          onPress={handleSubmit(onSubmit)}
-        />
+        <SaveButton onPress={handleSubmit(onSubmit)} />
       </View>
     </View>
   );
@@ -124,4 +166,5 @@ const styles = StyleSheet.create({
     marginBottom: 50,
     marginHorizontal: 20,
   },
+  
 });
