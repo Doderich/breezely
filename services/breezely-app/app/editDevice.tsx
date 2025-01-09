@@ -17,6 +17,7 @@ import { z } from "zod";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { StackRoutes } from "@/navigation/Routes";
 import { useCameraPermissions } from "expo-camera";
+import { useUserInfo } from "@/hooks/queries/useUserInfo";
 
 const schema = z.object({
   deviceId: z.string().nonempty(),
@@ -32,6 +33,7 @@ export default function EditDevice({
   navigation: any;
 }) {
   const [permission, requestPermission] = useCameraPermissions();
+  const {data: user} = useUserInfo()
 
   const isPermissionGranted = Boolean(permission?.granted);
 
@@ -43,7 +45,7 @@ export default function EditDevice({
   });
 
   const { mutate: updateDevice } = useUpdateDevice();
-  const { mutate: createDevice } = useCreateDevice();
+  const { mutate: createDevice } = useCreateDevice(user);
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -59,7 +61,6 @@ export default function EditDevice({
   useEffect(() => {
     navigation.setOptions({
       title: title,
-      
     });
   }, [navigation, route]);
 

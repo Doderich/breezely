@@ -2,6 +2,7 @@ import { BACKEND_URL, getBackendUrl } from "@/config/constants";
 import { Device } from "@/types/device";
 import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
+import { User } from "@/types/user";
 
 const QUERY_KEY_DEVICES = 'devices'
 const QUERY_KEY_DEVICE = 'device'
@@ -32,71 +33,139 @@ export const useDevice = (id:number | undefined, props?: Partial<UseQueryOptions
     enabled: !!id,
 })}
 
-export const useCreateDevice = () =>{
+export const useCreateDevice = (user: User | undefined) => {
     const { authenticatedFetch } = useAuth();
     const queryClient = useQueryClient();
+
     return useMutation<Device, Error, Omit<Device['device'], 'user' | 'id' | 'assigned_room'>>({
-    mutationFn: async (data) => {
-        const backendUrl = await getBackendUrl();
-        return authenticatedFetch(backendUrl+ '/devices', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
+        mutationFn: async (data) => {
+            const backendUrl = await getBackendUrl();
+            return authenticatedFetch(backendUrl + '/devices', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            }).then((res) => res.json());
         },
-        body: JSON.stringify(data)
-    }).then(res => res.json())
-},
-    throwOnError: true,
-    onError: (error) => console.log(error),
-    onSuccess: (data) => {
-        queryClient.setQueryData([QUERY_KEY_DEVICES], (prev: Device[]) => [...prev,data ])
-    },
-    onSettled: () => queryClient.invalidateQueries({queryKey: [QUERY_KEY_DEVICES]})
-})}
+        throwOnError: true,
+        onMutate: async (newDevice) => {
+            await queryClient.cancelQueries({queryKey: [QUERY_KEY_DEVICES]});
+
+            const previousDevices = queryClient.getQueryData<Device[]>([QUERY_KEY_DEVICES]);
+
+            queryClient.setQueryData([QUERY_KEY_DEVICES], (old: Device[] = []) => [
+                ...old,
+                {
+                    device: { ...newDevice, id: Date.now(), user: user?.id, assigned_room: null },
+                    telemetry: {
+                        active: [{
+                            value: "loading",
+                            ts: Date.now(),
+                        }],
+                        temperature: [{
+                            value: "loading",
+                            ts: Date.now(),
+                        }],
+                        humidity: [{
+                            value: "loading",
+                            ts: Date.now(),
+                        }],
+                        window_status: [{
+                            value: "loading",
+                            ts: Date.now(),
+                        }],
+                    },
+                },
+            ]);
+
+            return { previousDevices };
+        },
+        onError: (error, newDevice, context) => {
+            // @ts-expect-error asd
+            queryClient.setQueryData([QUERY_KEY_DEVICES], context?.previousDevices);
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEY_DEVICES] });
+        },
+    });
+};
+
 
 export const useUpdateDevice = () => {
     const { authenticatedFetch } = useAuth();
     const queryClient = useQueryClient();
+
     return useMutation<Device, Error, Omit<Device['device'], 'user' | 'assigned_room'>>({
-    mutationFn: async (device) => {
-        console.log("device", device);
-        const backendUrl = await getBackendUrl();
-        return authenticatedFetch(backendUrl+ '/devices/' + device.id, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(device)
-    }).then(res => res.json())},
-    onError: (error) => console.log(error),
-    onSuccess(data, id, context) {
-        queryClient.setQueryData([QUERY_KEY_DEVICES], (prev: Device[]) => {
-            return [...prev.filter(device => device.device.id != id), data ]
-        })
-        queryClient.setQueryData([QUERY_KEY_DEVICE, id], data)
-    },
-    onSettled: (_,__,{id}) => {
-        queryClient.invalidateQueries({queryKey: [QUERY_KEY_DEVICES]})
-    }
-}) }
+        mutationFn: async (device) => {
+            const backendUrl = await getBackendUrl();
+            return authenticatedFetch(backendUrl + '/devices/' + device.id, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(device),
+            }).then((res) => res.json());
+        },
+        onMutate: async (updatedDevice) => {
+            await queryClient.cancelQueries({queryKey: [QUERY_KEY_DEVICES]});
+
+            const previousDevices = queryClient.getQueryData<Device[]>([QUERY_KEY_DEVICES]);
+
+            queryClient.setQueryData([QUERY_KEY_DEVICES], (old: Device[] = []) =>
+                old.map((device) =>
+                    device.device.id === updatedDevice.id
+                        ? { ...device, device: { ...device.device, ...updatedDevice } }
+                        : device
+                )
+            );
+
+            return { previousDevices };
+        },
+        onError: (error, updatedDevice, context) => {
+            // @ts-expect-error asd
+            queryClient.setQueryData([QUERY_KEY_DEVICES], context?.previousDevices);
+        },
+        onSettled: (_, __, { id }) => {
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEY_DEVICES] });
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEY_DEVICE, id] });
+        },
+    });
+};
+
 
 export const useDeleteDevice = () => {
     const { authenticatedFetch } = useAuth();
     const queryClient = useQueryClient();
+
     return useMutation<number, Error, number>({
-    mutationFn: async (id) =>{
-        const backendUrl = await getBackendUrl();
-        return authenticatedFetch(backendUrl+ '/devices/' + id, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
+        mutationFn: async (id) => {
+            const backendUrl = await getBackendUrl();
+            return authenticatedFetch(backendUrl + '/devices/' + id, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then((res) => res.status);
         },
-    }).then(res => res.status)},
-    onSuccess(data, id, context) {
-        queryClient.setQueryData([QUERY_KEY_DEVICES], (prev: Device[]) => prev.filter(device => device.device.id != id))
-    },
-    onSettled: (id) => {
-        queryClient.invalidateQueries({queryKey: [QUERY_KEY_DEVICES]})
-        queryClient.removeQueries({queryKey: [QUERY_KEY_DEVICE, id]})
-    }
-}) }
+        onMutate: async (id) => {
+            await queryClient.cancelQueries({queryKey: [QUERY_KEY_DEVICES]});
+
+            const previousDevices = queryClient.getQueryData<Device[]>([QUERY_KEY_DEVICES]);
+
+            queryClient.setQueryData([QUERY_KEY_DEVICES], (old: Device[] = []) =>
+                old.filter((device) => device.device.id !== id)
+            );
+
+            return { previousDevices };
+        },
+        onError: (error, id, context) => {
+            // @ts-expect-error asd
+            queryClient.setQueryData([QUERY_KEY_DEVICES], context?.previousDevices);
+        },
+        onSettled: (id) => {
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEY_DEVICES] });
+            queryClient.removeQueries({ queryKey: [QUERY_KEY_DEVICE, id] });
+        },
+    });
+};

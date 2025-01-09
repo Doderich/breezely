@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Pressable, Text, StyleSheet, View } from "react-native";
+import { Pressable, Text, StyleSheet, View, ActivityIndicator } from "react-native";
 import FlowText from "./flowText";
 import { DeviceTypes, Device } from "@/types/device";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
@@ -36,11 +36,11 @@ const DeviceView: React.FC<Props> = ({ device, onPress = () => {} }) => {
               size={22}
               color={iconColor}
             />
-            <FlowText
+             {device.telemetry.window_status[0].value === "loading" ? <ActivityIndicator size="small" />: <FlowText
               type={"text5"}
               flowText={device?.telemetry?.window_status[0]?.value === "true" ? "open" : "closed"}
               color={dataColor}
-            />
+            />}
           </View>
           <View style={style.dataItemContainer}>
             <FontAwesome5
@@ -48,19 +48,19 @@ const DeviceView: React.FC<Props> = ({ device, onPress = () => {} }) => {
               size={22}
               color={iconColor}
             />
-            <FlowText
+             {device.telemetry.temperature[0].value === "loading" ?<ActivityIndicator size="small"  /> :  <FlowText
               type={"text5"}
               flowText={`${device.telemetry.temperature[0].value}°`}
               color={dataColor}
-            />
+            />}
           </View>
           <View style={style.dataItemContainer}>
             <FontAwesome6 name="droplet" size={22} color={iconColor} />
-            <FlowText
+            {device.telemetry.humidity[0].value === "loading" ?<ActivityIndicator size="small"  /> :  <FlowText
               type={"text5"}
               flowText={`${device.telemetry.humidity[0].value}%`}
               color={dataColor}
-            />
+            />}
           </View>
         </View>
         <RoomTab room={rooms?.find(room => room.id === device.device.assigned_room)?.name ?? "No Room"} />

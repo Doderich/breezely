@@ -17,7 +17,7 @@ export default function qrScan({ navigation }: { navigation: any }) {
   const [isActive, setIsActive] = useState(true);
   return (
     <SafeAreaView style={styleSheet.container}>
-      {Platform.OS === "android" ? <StatusBar hidden /> : null}
+      {/* {Platform.OS === "android" ? <StatusBar hidden /> : null} */}
 
       <Pressable
         style={styleSheet.backButton}
@@ -36,6 +36,7 @@ export default function qrScan({ navigation }: { navigation: any }) {
         onBarcodeScanned={({ data }) => {
           setIsActive(false);
           navigation.navigate(StackRoutes.EditDevice, {
+            title: "Add Device",
             qrCodeDeviceId: data,
           });
         }}
