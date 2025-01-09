@@ -1,5 +1,5 @@
 from rest_framework.generics import GenericAPIView
-
+from datetime import datetime
 
 from .lib import get_user_from_request, merge_devices_and_telemetry
 
@@ -68,15 +68,22 @@ class DevicesView(GenericAPIView):
     @require_auth(scopes=None)
     def get(self, request):
         user = get_user_from_request(request)
-        print(user)
+        print(f"Authenticated User: {user}")
+
+        # Fetch all devices for the user
         devices = Device.objects.filter(user=user)
         if not devices:
-            return Response(data={"devices": []},
-                            status=status.HTTP_200_OK)
+            return Response(data={"devices": []}, status=status.HTTP_200_OK)
+
+        # Merge devices and telemetry data
+        merged_devices = merge_devices_and_telemetry(devices)
+
+        # Serialize the merged devices
+        merged_devices_ser = MergedDevicesSerializer(instance=merged_devices, many=True)
         
-        merged_devices_ser = MergedDevicesSerializer(instance=merge_devices_and_telemetry(devices), many=True)
-        return Response(data=merged_devices_ser.data,
-                        status=status.HTTP_200_OK)
+        # Return serialized data
+        return Response(data=merged_devices_ser.data, status=status.HTTP_200_OK)
+
         
     @require_auth(scopes=None)
     def post(self, request):
@@ -113,7 +120,13 @@ class DeviceView(GenericAPIView):
                             status=status.HTTP_404_NOT_FOUND)
         client = thingsboard_helpers.ThingsBoardClient().client
         try:
+            deviceInfo = client.get_device_info_by_id(device_id=device.device_id)
+            print(deviceInfo)
             telemetry = client.telemetry_controller.get_latest_timeseries_using_get("DEVICE", device.device_id)
+            telemetry['active'] = {
+                "value": deviceInfo.active,
+                "ts":datetime.now()
+            }
         except Exception as e:
             print(e)
             return Response(data={"details": "Failed to retrieve telemetry data"},

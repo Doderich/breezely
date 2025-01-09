@@ -1,3 +1,4 @@
+from datetime import datetime
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -22,13 +23,22 @@ def get_user_from_request(request):
 def merge_devices_and_telemetry(devices):
     client = thingsboard_helpers.ThingsBoardClient().client
     merged_devices = []
+
     for device in devices:
         try:
+            deviceInfo = client.get_device_info_by_id(device_id=device.device_id)
             telemetry = client.telemetry_controller.get_latest_timeseries_using_get("DEVICE", device.device_id)
+            telemetry['active'] = {
+                "value": deviceInfo.active,
+                "ts":datetime.now()
+            }
         except Exception as e:
-            print(e)
-            return Response(data={"details": "Failed to retrieve device data"},
-                            status=status.HTTP_400_BAD_REQUEST)
-        merged_devices.append({"device": device, "telemetry": telemetry})
-    
+            print(f"Error fetching telemetry for device {device.device_id}: {e}")
+            telemetry = {}  # Fallback: Empty telemetry data if fetching fails
+
+        merged_devices.append({
+            "device": device,
+            "telemetry": telemetry
+        })
+
     return merged_devices
