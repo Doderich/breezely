@@ -11,6 +11,7 @@ export type StackRoutesType = {
   Favorites: string;
   EditProfile: string;
   EditProfileField: string;
+  QrScan: string;
 };
 
 export type TabRoutesType = {
@@ -33,6 +34,7 @@ export const StackRoutes: StackRoutesType = {
   Favorites: "Favorites",
   EditProfile: "EditProfile",
   EditProfileField: "EditProfileField",
+  QrScan: "QrScan",
 };
 
 export const TabRoutes: TabRoutesType = {
