@@ -36,7 +36,7 @@ const InfoLabelEdit: React.FC<Props> = ({
           placeholder={"................"}
           placeholderTextColor="#868686"
         />
-        {info === "Device ID" && (
+        {info === "Device ID" ? (
           <Pressable
             style={style.qrCodeButton}
             onPressIn={() => {
@@ -52,6 +52,10 @@ const InfoLabelEdit: React.FC<Props> = ({
           >
             <FontAwesome name="qrcode" size={30} color="black" />
           </Pressable>
+        ) : (
+          <View
+            style={[style.qrCodeButton, { width: 25, backgroundColor: "red" }]}
+          />
         )}
       </View>
     </View>
@@ -77,6 +81,7 @@ const style = StyleSheet.create({
     columnGap: 10,
   },
   input: {
+    paddingLeft: 16,
     fontSize: 14,
     color: "#130F26",
     padding: 0,
