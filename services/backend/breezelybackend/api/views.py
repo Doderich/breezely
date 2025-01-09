@@ -91,6 +91,16 @@ class DevicesView(GenericAPIView):
         client = thingsboard_helpers.ThingsBoardClient().client
         data = request.data
         data["user"] = user.id
+
+        try:
+            tb_device = client.get_tenant_device(device_name=data["device_id"])
+            print(tb_device)
+        except Exception as e:
+            print(e)
+            return Response(data={"details": "Device not found"},
+                            status=status.HTTP_404_NOT_FOUND)
+            
+        data["device_id"] = tb_device.id.id
         device = DeviceSerializer(data=data)
         if not device.is_valid(raise_exception=True):
             return Response(data=device.errors,
