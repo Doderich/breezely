@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { RouteProp } from "@react-navigation/native";
 import { View, Text, StyleSheet, Pressable } from "react-native";
@@ -24,7 +25,6 @@ const schema = z.object({
   deviceName: z.string().nonempty(),
   deviceType: z.enum(["Window", "Door"]),
 });
-
 export default function EditDevice({
   route,
   navigation,
@@ -36,17 +36,15 @@ export default function EditDevice({
   const {data: user} = useUserInfo()
 
   const isPermissionGranted = Boolean(permission?.granted);
-
   const routeDevice = route.params?.device?.device;
   const title = route.params?.title;
+  const backTitle = route.params?.backTitle;
   const qrCodeDeviceId = route.params?.qrCodeDeviceId;
   const { data: device } = useDevice(routeDevice?.id, {
     initialData: routeDevice ?? undefined,
   });
-
   const { mutate: updateDevice } = useUpdateDevice();
   const { mutate: createDevice } = useCreateDevice(user);
-
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -55,15 +53,13 @@ export default function EditDevice({
       deviceType: routeDevice?.type ?? "",
     },
   });
-
   const { handleSubmit } = form;
-
   useEffect(() => {
     navigation.setOptions({
       title: title,
+      headerBackTitle: backTitle ?? "App",
     });
   }, [navigation, route]);
-
   const onSubmit = ({
     deviceId,
     deviceName,
@@ -81,26 +77,10 @@ export default function EditDevice({
     }
     navigation.navigate(TabRoutes.App);
   };
-
   return (
     <View style={styles.container}>
       <FlowText flowText={"Info"} type="text3" styleProps={styles.infoText} />
       <View style={styles.deviceInfoDetails}>
-        {/* <Pressable
-          style={styles.qrCodeButton}
-          onPressIn={() => {
-            requestPermission();
-
-            if (isPermissionGranted) {
-              console.log("Scan QR Code");
-              navigation.navigate(StackRoutes.QrScan);
-            } else {
-              requestPermission();
-            }
-          }}
-        >
-          <FontAwesome name="qrcode" size={30} color="black" />
-        </Pressable> */}
         <Controller
           control={form.control}
           name="deviceId"
@@ -115,7 +95,6 @@ export default function EditDevice({
             />
           )}
         />
-
         <Controller
           control={form.control}
           name="deviceName"
@@ -145,7 +124,6 @@ export default function EditDevice({
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -167,5 +145,7 @@ const styles = StyleSheet.create({
     marginBottom: 50,
     marginHorizontal: 20,
   },
-  
+  containerLayout: {
+    // minHeight: 128,
+  },
 });

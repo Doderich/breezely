@@ -43,8 +43,8 @@ export default function Settings({ navigation }: { navigation: any }) {
             navigation.navigate("Rooms");
           }}
         />
-        <ScreenTab title="Language" onPress={() => {}} />
-          <ScreenTab title="Development" onPress={() => {navigation.navigate("Development");}} />
+        {/* <ScreenTab title="Language" onPress={() => {}} /> */}
+        {/* <ScreenTab title="Development" onPress={() => {navigation.navigate("Development");}} /> */}
         <ScreenTab title="Logout" onPress={logoutUser} textColor={"#FF5C00"} />
       </View>
     </SafeAreaView>

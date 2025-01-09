@@ -38,6 +38,7 @@ export default function qrScan({ navigation }: { navigation: any }) {
           navigation.navigate(StackRoutes.EditDevice, {
             title: "Add Device",
             qrCodeDeviceId: data,
+            backTitle: "App",
           });
         }}
       />

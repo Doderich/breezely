@@ -19,9 +19,9 @@ const InfoLabel: React.FC<Props> = ({
 }) => {
   return (
     <Pressable style={style.container} onPress={onPress}>
-      <FlowText type={"text7"} flowText={info} color={"#868686"} />
+      <FlowText type={"text7"} flowText={info} color={"#868686"}/>
       <View style={style.dataContainer}>
-        <FlowText type={"text7"} flowText={data} color={"#130F26"} />
+        <FlowText type={"text7"} flowText={data} color={"#130F26"} numberOfLines={1}/>
         {isUserInfo && (
           <MaterialIcons name="arrow-forward-ios" size={12} color="black" />
         )}
@@ -47,5 +47,7 @@ const style = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     columnGap: 10,
+    paddingLeft: 10,
+    paddingRight: 40,
   },
 });

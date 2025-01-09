@@ -4,6 +4,7 @@ import FlowText from "./flowText";
 import { useCameraPermissions } from "expo-camera";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { StackRoutes } from "@/navigation/Routes";
+import { IndexPath, Layout, Select, SelectItem } from "@ui-kitten/components";
 
 type Props = {
   info: string;
@@ -20,35 +21,61 @@ const InfoLabelEdit: React.FC<Props> = ({
   onBlur,
   onNavigate,
 }) => {
+  const [selectedIndex, setSelectedIndex] = React.useState<
+    IndexPath | IndexPath[]
+  >(new IndexPath(0));
+  const [selectedValue, setSelectedValue] = React.useState("Select Device Type");
+
   const [permission, requestPermission] = useCameraPermissions();
 
   const isPermissionGranted = Boolean(permission?.granted);
+  // (NOBRIDGE) LOG  {"equals": [Function anonymous], "row": 1, "section": undefined}
+
+  const handleQRCodePress = async () => {
+    if (isPermissionGranted) {
+      console.log("Scan QR Code");
+      onNavigate?.();
+    } else {
+      await requestPermission();
+    }
+  };
 
   return (
     <View style={style.container}>
       <FlowText type={"text7"} flowText={info} color={"#868686"} />
       <View style={style.dataContainer}>
-        <TextInput
-          value={data}
-          onBlur={onBlur}
-          onChangeText={onChangeText}
-          style={style.input}
-          placeholder={"................"}
-          placeholderTextColor="#868686"
-        />
+        {info === "Device Type" ? (
+          <Layout level="1">
+            <Select
+              style={{ width: 200, marginHorizontal: 20 }}
+              size="small"
+              selectedIndex={selectedIndex}
+              value={selectedValue}
+              onSelect={(index) => {
+                setSelectedIndex(index);
+                const newValue = Array.isArray(index) ? "Window" : index.row === 0 ? "Window" : "Door";
+                setSelectedValue(newValue);
+                onChangeText?.(newValue);
+              }}
+            >
+              <SelectItem title="Window" />
+              <SelectItem title="Door" />
+            </Select>
+          </Layout>
+        ) : (
+          <TextInput
+            value={data}
+            onBlur={onBlur}
+            onChangeText={onChangeText}
+            style={style.input}
+            placeholder={"................"}
+            placeholderTextColor="#868686"
+          />
+        )}
         {info === "Device ID" ? (
           <Pressable
             style={style.qrCodeButton}
-            onPressIn={() => {
-              requestPermission();
-
-              if (isPermissionGranted) {
-                console.log("Scan QR Code");
-                onNavigate?.();
-              } else {
-                requestPermission();
-              }
-            }}
+            onPressIn={handleQRCodePress}
           >
             <FontAwesome name="qrcode" size={30} color="black" />
           </Pressable>

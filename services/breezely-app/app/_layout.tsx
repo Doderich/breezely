@@ -1,9 +1,16 @@
 import React, { useEffect } from "react";
+import * as eva from "@eva-design/eva";
+import { ApplicationProvider, Layout, Text } from "@ui-kitten/components";
 import { Authenticated, NonAuthenticated } from "@/navigation/MainNavigation";
 import { useAuth } from "@/hooks/useAuth";
-import { focusManager, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  focusManager,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 import { useReactQueryDevTools } from "@dev-plugins/react-query";
 import { AppState, AppStateStatus, Platform } from "react-native";
+import { LogBox } from "react-native";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,22 +23,25 @@ const queryClient = new QueryClient({
 });
 
 export default function RootLayout() {
+  LogBox.ignoreAllLogs();
   useReactQueryDevTools(queryClient);
   const { user } = useAuth();
   function onAppStateChange(status: AppStateStatus) {
-    if (Platform.OS !== 'web') {
-      focusManager.setFocused(status === 'active')
+    if (Platform.OS !== "web") {
+      focusManager.setFocused(status === "active");
     }
   }
   useEffect(() => {
-    const subscription = AppState.addEventListener('change', onAppStateChange)
-  
-    return () => subscription.remove()
-  }, [])
+    const subscription = AppState.addEventListener("change", onAppStateChange);
+
+    return () => subscription.remove();
+  }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      {user ? <Authenticated /> : <NonAuthenticated />}
-    </QueryClientProvider>
+    <ApplicationProvider {...eva} theme={eva.light}>
+      <QueryClientProvider client={queryClient}>
+        {user ? <Authenticated /> : <NonAuthenticated />}
+      </QueryClientProvider>
+    </ApplicationProvider>
   );
 }
