@@ -48,6 +48,9 @@ export const useCreateDevice = () =>{
 },
     throwOnError: true,
     onError: (error) => console.log(error),
+    onSuccess: (data) => {
+        queryClient.setQueryData([QUERY_KEY_DEVICES], (prev: Device[]) => [...prev,data ])
+    },
     onSettled: () => queryClient.invalidateQueries({queryKey: [QUERY_KEY_DEVICES]})
 })}
 
@@ -66,12 +69,15 @@ export const useUpdateDevice = () => {
             body: JSON.stringify(device)
     }).then(res => res.json())},
     onError: (error) => console.log(error),
-    
+    onSuccess(data, id, context) {
+        queryClient.setQueryData([QUERY_KEY_DEVICES], (prev: Device[]) => {
+            return [...prev.filter(device => device.device.id != id), data ]
+        })
+        queryClient.setQueryData([QUERY_KEY_DEVICE, id], data)
+    },
     onSettled: (_,__,{id}) => {
         queryClient.invalidateQueries({queryKey: [QUERY_KEY_DEVICES]})
-        queryClient.removeQueries({queryKey: [QUERY_KEY_DEVICE, id]})
     }
-    
 }) }
 
 export const useDeleteDevice = () => {
@@ -86,6 +92,9 @@ export const useDeleteDevice = () => {
             'Content-Type': 'application/json',
         },
     }).then(res => res.status)},
+    onSuccess(data, id, context) {
+        queryClient.setQueryData([QUERY_KEY_DEVICES], (prev: Device[]) => prev.filter(device => device.device.id != id))
+    },
     onSettled: (id) => {
         queryClient.invalidateQueries({queryKey: [QUERY_KEY_DEVICES]})
         queryClient.removeQueries({queryKey: [QUERY_KEY_DEVICE, id]})
